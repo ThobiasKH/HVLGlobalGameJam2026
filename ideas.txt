@@ -1,0 +1,19 @@
+Mask puzzle platformer where masks change gameplay, e.g.: 
+
+Mask of stone 
+- Makes you heavy 
+- Pressure plates will activate when stood on
+- Ice no longer slides 
+
+Mask of wind
+- Slide until hitting walls 
+- Can cross gaps 
+- Cannot activate pressure plates 
+
+Mask of fire
+- Can light stuff 
+- Can endure heat
+- Water kills you 
+
+and so on.. 
+
