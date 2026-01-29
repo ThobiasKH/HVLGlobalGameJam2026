@@ -1,66 +1,66 @@
 #include "player.h"
-#include "config.h"
 
-void PlayerInit(Player* p, int x, int y, int tileSize, int ox, int oy) {
+void PlayerInit(Player* p, int x, int y, const View& view) {
     p->gx = x;
     p->gy = y;
 
-    p->visualPos = {
-        (float)(ox + x * tileSize),
-        (float)(oy + y * tileSize)
-    };
-
-    p->startPos = p->visualPos;
+    p->visualPos = view.GridToWorld(x, y);
+    p->startPos  = p->visualPos;
     p->targetPos = p->visualPos;
 
-    p->moveTimer = 0.0f;
-    p->moveDuration = 0.15f; // tweakable
+    p->timer = 0.0f;
+    p->duration = 0.15f;
     p->moving = false;
 }
 
-bool PlayerTryMove(Player* p, int dx, int dy, int tileSize, int ox, int oy) {
-    if (p->moving) return false;
+void PlayerTryMove(Player* p, int dx, int dy, const World& world, const View& view) {
+    if (p->moving) return;
 
-    p->gx += dx;
-    p->gy += dy;
+    int nx = p->gx + dx;
+    int ny = p->gy + dy;
+
+    if (!world.IsWalkable(nx, ny)) return;
+
+    p->gx = nx;
+    p->gy = ny;
 
     p->startPos = p->visualPos;
-    p->targetPos = {
-        (float)(ox + p->gx * tileSize),
-        (float)(oy + p->gy * tileSize)
-    };
+    p->targetPos = view.GridToWorld(nx, ny);
 
-    p->moveTimer = 0.0f;
+    p->timer = 0.0f;
     p->moving = true;
-    return true;
 }
 
 void PlayerUpdate(Player* p, float dt) {
     if (!p->moving) return;
 
-    p->moveTimer += dt;
-    float t = p->moveTimer / p->moveDuration;
+    p->timer += dt;
+    float t = p->timer / p->duration;
+
     if (t >= 1.0f) {
         t = 1.0f;
         p->moving = false;
     }
 
-    // Smoothstep (feels better than linear)
-    float smooth = t * t * (3.0f - 2.0f * t);
+    float smooth = t * t * (3 - 2 * t);
 
-    p->visualPos = {
-        p->startPos.x + (p->targetPos.x - p->startPos.x) * smooth,
-        p->startPos.y + (p->targetPos.y - p->startPos.y) * smooth
-    };
+    p->visualPos.x = p->startPos.x + (p->targetPos.x - p->startPos.x) * smooth;
+    p->visualPos.y = p->startPos.y + (p->targetPos.y - p->startPos.y) * smooth;
 }
 
-void PlayerDraw(Player* p, int tileSize, int, int) {
+void PlayerDraw(const Player* p, const View& view) {
     DrawRectangle(
         (int)p->visualPos.x,
         (int)p->visualPos.y,
-        tileSize,
-        tileSize,
+        view.tileSize,
+        view.tileSize,
         RED
     );
 }
 
+void PlayerSyncVisual(Player* p, const View& view) {
+    p->visualPos = view.GridToWorld(p->gx, p->gy);
+    p->startPos  = p->visualPos;
+    p->targetPos = p->visualPos;
+    p->moving = false;
+}

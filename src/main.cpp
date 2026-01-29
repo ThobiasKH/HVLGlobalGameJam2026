@@ -6,74 +6,57 @@
 #include <algorithm>
 
 int main() {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Mask Puzzle");
-    SetTargetFPS(TARGET_FPS);
 
-    World world = {};
-    for (int y = 0; y < GRID_H; y++) {
-        for (int x = 0; x < GRID_W; x++) {
-            world.tiles[y][x] = TILE_EMPTY;
-        }
-    }
+    World world;
+    world.width = 16;
+    world.height = 12;
+    world.tiles.resize(world.width * world.height, TILE_EMPTY);
 
-    int tileSize = std::min(
-        SCREEN_WIDTH / GRID_W,
-        SCREEN_HEIGHT / GRID_H
-    );
+    world.tiles[5] = TILE_SPIKES;
+    world.tiles[9] = TILE_PIT; 
+    world.tiles[11] = TILE_WALL;
 
-    int offsetX = (SCREEN_WIDTH - tileSize * GRID_W) / 2;
-    int offsetY = (SCREEN_HEIGHT - tileSize * GRID_H) / 2;
-
-    // Walls
-    for (int x = 0; x < GRID_W; x++) {
-        world.tiles[0][x] = TILE_WALL;
-        world.tiles[GRID_H - 1][x] = TILE_WALL;
-    }
-    for (int y = 0; y < GRID_H; y++) {
-        world.tiles[y][0] = TILE_WALL;
-        world.tiles[y][GRID_W - 1] = TILE_WALL;
-    }
-
-    world.tiles[5][5] = TILE_SPIKES;
+    View view;
+    view.gridW = world.width;
+    view.gridH = world.height;
 
     Player player;
-    PlayerInit(&player, 2, 2, tileSize, offsetX, offsetY);
+
+    InitWindow(1280, 960, "Mask Puzzle");
+    SetTargetFPS(60);
+    // Optional:
+    // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+
+    view.Recalculate();
+    PlayerInit(&player, 2, 2, view);
 
     while (!WindowShouldClose()) {
+        bool resized = IsWindowResized();
+
+        view.Recalculate();
+
+        if (resized && !player.moving) {
+            PlayerSyncVisual(&player, view);
+        }
+
         float dt = GetFrameTime();
 
         if (!player.moving) {
-            if (IsKeyPressed(KEY_UP))    PlayerTryMove(&player, 0, -1, tileSize, offsetX, offsetY);
-            if (IsKeyPressed(KEY_DOWN))  PlayerTryMove(&player, 0,  1, tileSize, offsetX, offsetY);
-            if (IsKeyPressed(KEY_LEFT))  PlayerTryMove(&player, -1, 0, tileSize, offsetX, offsetY);
-            if (IsKeyPressed(KEY_RIGHT)) PlayerTryMove(&player,  1, 0, tileSize, offsetX, offsetY);
+            if (IsKeyPressed(KEY_UP))    PlayerTryMove(&player, 0, -1, world, view);
+            if (IsKeyPressed(KEY_DOWN))  PlayerTryMove(&player, 0,  1, world, view);
+            if (IsKeyPressed(KEY_LEFT))  PlayerTryMove(&player, -1, 0, world, view);
+            if (IsKeyPressed(KEY_RIGHT)) PlayerTryMove(&player,  1, 0, world, view);
         }
 
         PlayerUpdate(&player, dt);
+        world.Draw(view);
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        for (int y = 0; y < GRID_H; y++) {
-            for (int x = 0; x < GRID_W; x++) {
-                Color c = DARKGRAY;
-                if (world.tiles[y][x] == TILE_WALL)   c = GRAY;
-                if (world.tiles[y][x] == TILE_SPIKES) c = ORANGE;
+        // draw tiles using view.tileSize / offsets
+        PlayerDraw(&player, view);
 
-                DrawRectangle(
-                    offsetX + x * tileSize,
-                    offsetY + y * tileSize,
-                    tileSize,
-                    tileSize,
-                    c
-                );
-            }
-        }
-
-        PlayerDraw(&player, tileSize, offsetX, offsetY);
         EndDrawing();
     }
-
-    CloseWindow();
-    return 0;
 }

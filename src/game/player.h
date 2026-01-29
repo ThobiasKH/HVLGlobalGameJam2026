@@ -1,22 +1,22 @@
 #pragma once
 #include <raylib.h>
 #include "world.h"
+#include "view.h"
 
 struct Player {
-    // logical position (authoritative)
     int gx, gy;
 
-    // visual position (interpolated)
     Vector2 visualPos;
     Vector2 startPos;
     Vector2 targetPos;
 
-    float moveTimer;
-    float moveDuration;
+    float timer;
+    float duration;
     bool moving;
 };
 
-void PlayerInit(Player* p, int x, int y, int tileSize, int ox, int oy);
+void PlayerInit(Player* p, int x, int y, const View& view);
 void PlayerUpdate(Player* p, float dt);
-void PlayerDraw(Player* p, int tileSize, int ox, int oy);
-bool PlayerTryMove(Player* p, int dx, int dy, int tileSize, int ox, int oy);
+void PlayerDraw(const Player* p, const View& view);
+void PlayerTryMove(Player* p, int dx, int dy, const World& world, const View& view);
+void PlayerSyncVisual(Player* p, const View& view);
