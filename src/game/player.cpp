@@ -1,41 +1,63 @@
 #include "player.h"
 #include "config.h"
 
-void PlayerInit(Player* p, int x, int y) {
-    p->x = x;
-    p->y = y;
+void PlayerInit(Player* p, int x, int y, int tileSize, int ox, int oy) {
+    p->gx = x;
+    p->gy = y;
+
+    p->visualPos = {
+        (float)(ox + x * tileSize),
+        (float)(oy + y * tileSize)
+    };
+
+    p->startPos = p->visualPos;
+    p->targetPos = p->visualPos;
+
+    p->moveTimer = 0.0f;
+    p->moveDuration = 0.15f; // tweakable
+    p->moving = false;
 }
 
-static bool TryMove(Player* p, World* world, int dx, int dy) {
-    int nx = p->x + dx;
-    int ny = p->y + dy;
+bool PlayerTryMove(Player* p, int dx, int dy, int tileSize, int ox, int oy) {
+    if (p->moving) return false;
 
-    if (nx < 0 || ny < 0 || nx >= GRID_W || ny >= GRID_H)
-        return false;
+    p->gx += dx;
+    p->gy += dy;
 
-    Tile t = world->tiles[ny][nx];
+    p->startPos = p->visualPos;
+    p->targetPos = {
+        (float)(ox + p->gx * tileSize),
+        (float)(oy + p->gy * tileSize)
+    };
 
-    if (!IsWalkable(t))
-        return false;
-
-    p->x = nx;
-    p->y = ny;
-
-    OnEnterTile(t);
+    p->moveTimer = 0.0f;
+    p->moving = true;
     return true;
 }
 
-void PlayerUpdate(Player* p, World* world) {
-    if (IsKeyPressed(KEY_UP))    TryMove(p, world, 0, -1);
-    if (IsKeyPressed(KEY_DOWN))  TryMove(p, world, 0,  1);
-    if (IsKeyPressed(KEY_LEFT))  TryMove(p, world, -1, 0);
-    if (IsKeyPressed(KEY_RIGHT)) TryMove(p, world,  1, 0);
+void PlayerUpdate(Player* p, float dt) {
+    if (!p->moving) return;
+
+    p->moveTimer += dt;
+    float t = p->moveTimer / p->moveDuration;
+    if (t >= 1.0f) {
+        t = 1.0f;
+        p->moving = false;
+    }
+
+    // Smoothstep (feels better than linear)
+    float smooth = t * t * (3.0f - 2.0f * t);
+
+    p->visualPos = {
+        p->startPos.x + (p->targetPos.x - p->startPos.x) * smooth,
+        p->startPos.y + (p->targetPos.y - p->startPos.y) * smooth
+    };
 }
 
-void PlayerDraw(Player* p, int tileSize, int ox, int oy) {
+void PlayerDraw(Player* p, int tileSize, int, int) {
     DrawRectangle(
-        ox + p->x * tileSize,
-        oy + p->y * tileSize,
+        (int)p->visualPos.x,
+        (int)p->visualPos.y,
         tileSize,
         tileSize,
         RED

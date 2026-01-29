@@ -37,10 +37,19 @@ int main() {
     world.tiles[5][5] = TILE_SPIKES;
 
     Player player;
-    PlayerInit(&player, 2, 2);
+    PlayerInit(&player, 2, 2, tileSize, offsetX, offsetY);
 
     while (!WindowShouldClose()) {
-        PlayerUpdate(&player, &world);
+        float dt = GetFrameTime();
+
+        if (!player.moving) {
+            if (IsKeyPressed(KEY_UP))    PlayerTryMove(&player, 0, -1, tileSize, offsetX, offsetY);
+            if (IsKeyPressed(KEY_DOWN))  PlayerTryMove(&player, 0,  1, tileSize, offsetX, offsetY);
+            if (IsKeyPressed(KEY_LEFT))  PlayerTryMove(&player, -1, 0, tileSize, offsetX, offsetY);
+            if (IsKeyPressed(KEY_RIGHT)) PlayerTryMove(&player,  1, 0, tileSize, offsetX, offsetY);
+        }
+
+        PlayerUpdate(&player, dt);
 
         BeginDrawing();
         ClearBackground(BLACK);
