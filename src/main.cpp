@@ -63,7 +63,7 @@ int main() {
             }
         }
 
-        PlayerUpdate(&player, dt);
+        PlayerUpdate(&player, dt, world, view);
         world.Draw(view);
 
         BeginDrawing();

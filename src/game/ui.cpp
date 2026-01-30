@@ -14,8 +14,13 @@ void HotbarInit(Hotbar* hb) {
         LoadTexture("assets/mask_sprites/stone_mask_sprite.png")
     };
     SetTextureFilter(hb->slots[0].texture, TEXTURE_FILTER_POINT);
+    hb->slots[1] = {
+        MASK_WIND, 
+        LoadTexture("assets/mask_sprites/wind_mask_sprite.png")
+    };
+    SetTextureFilter(hb->slots[1].texture, TEXTURE_FILTER_POINT);
 
-    for (int i = 1; i < HOTBAR_SLOTS; i++) {
+    for (int i = 2; i < HOTBAR_SLOTS; i++) {
         hb->slots[i] = { MASK_NONE, {} };
     }
 }

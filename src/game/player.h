@@ -1,5 +1,6 @@
 #pragma once
 #include <raylib.h>
+#include <queue>
 #include "world.h"
 #include "view.h"
 #include "mask.h"
@@ -16,10 +17,12 @@ struct Player {
     bool moving;
 
     MaskType mask; 
+
+    Vector2 slideDir; 
 };
 
 void PlayerInit(Player* p, int x, int y, const View& view);
-void PlayerUpdate(Player* p, float dt);
+void PlayerUpdate(Player* p, float dt, const World& world, const View& view);
 void PlayerDraw(const Player* p, const View& view);
 void PlayerTryMove(Player* p, int dx, int dy, const World& world, const View& view);
 void PlayerSyncVisual(Player* p, const View& view);
