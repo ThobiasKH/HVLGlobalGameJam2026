@@ -11,21 +11,37 @@ void PlayerInit(Player* p, int x, int y, const View& view) {
     p->timer = 0.0f;
     p->duration = 0.15f;
     p->moving = false;
+
+    p->mask = MASK_NONE;
 }
 
-void PlayerTryMove(Player* p, int dx, int dy, const World& world, const View& view) {
+void PlayerTryMove(Player* p, int dx, int dy,
+                   const World& world,
+                   const View& view)
+{
     if (p->moving) return;
+    if (p->mask == MASK_NONE) return;
 
     int nx = p->gx + dx;
     int ny = p->gy + dy;
 
-    if (!world.IsWalkable(nx, ny)) return;
+    if (!world.IsWalkable(nx, ny, p->mask))
+        return;
+
+    if (world.IsDeadly(nx, ny, p->mask)) {
+        // reset / lose
+        TraceLog(LOG_INFO, "Player died");
+        return;
+    }
 
     p->gx = nx;
     p->gy = ny;
 
     p->startPos = p->visualPos;
     p->targetPos = view.GridToWorld(nx, ny);
+
+    // Stone moves slower (nice bit of feel)
+    p->duration = (p->mask == MASK_STONE) ? 0.25f : 0.15f;
 
     p->timer = 0.0f;
     p->moving = true;

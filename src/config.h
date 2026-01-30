@@ -9,4 +9,5 @@ constexpr int TARGET_FPS = 60;
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 960
 
-
+#define HOTBAR_SLOTS 4
+#define UI_HEIGHT 96

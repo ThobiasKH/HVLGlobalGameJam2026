@@ -3,7 +3,7 @@
 
 void View::Recalculate() {
     screenW = GetScreenWidth();
-    screenH = GetScreenHeight();
+    screenH = GetScreenHeight() - UI_HEIGHT;
 
     tileSize = std::min(
         screenW / gridW,

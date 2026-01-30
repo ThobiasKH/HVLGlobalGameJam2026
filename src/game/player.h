@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include "world.h"
 #include "view.h"
+#include "mask.h"
 
 struct Player {
     int gx, gy;
@@ -13,6 +14,8 @@ struct Player {
     float timer;
     float duration;
     bool moving;
+
+    MaskType mask; 
 };
 
 void PlayerInit(Player* p, int x, int y, const View& view);

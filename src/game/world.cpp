@@ -8,11 +8,34 @@ bool World::InBounds(int x, int y) const {
     return x >= 0 && y >= 0 && x < width && y < height;
 }
 
-bool World::IsWalkable(int x, int y) const {
+bool World::IsWalkable(int x, int y, MaskType mask) const {
     if (!InBounds(x, y)) return false;
 
     Tile t = Get(x, y);
-    return t != TILE_WALL;
+
+    switch (t) {
+        case TILE_WALL:
+            return false;
+
+        case TILE_GLASS:
+            return mask != MASK_STONE; // stone breaks glass later
+
+        default:
+            return true;
+    }
+}
+
+bool World::IsDeadly(int x, int y, MaskType mask) const {
+    Tile t = Get(x, y);
+
+    if (t == TILE_SPIKES && mask != MASK_STONE)
+        return true;
+
+    if (t == TILE_PIT && mask != MASK_WIND) {
+        return true;
+    }
+
+    return false;
 }
 
 void World::Draw(const View& view) const {
