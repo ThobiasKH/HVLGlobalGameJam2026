@@ -34,7 +34,7 @@ void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
 
 int main() {
     Level level;
-    level.LoadFromFile("levels/level01.txt");
+    level.LoadFromFile("levels/tutorials/tutorial01.txt");
 
     View view;
     Player player;
@@ -80,6 +80,8 @@ int main() {
     bool  isDead     = false;
     float deathTimer = 0.0f;
 
+    UINoiseInit();
+
     while (!WindowShouldClose()) {
         float dt = GetFrameTime();
 
@@ -93,6 +95,8 @@ int main() {
                 GetScreenWidth(),
                 GetScreenHeight()
             );
+
+            UINoiseOnResize();
         }
 
         // --- Update death timer ---
@@ -135,6 +139,9 @@ int main() {
             }
         }
 
+        UINoiseUpdate(dt);
+        UINoiseOnMaskChanged(player.mask);
+
         // --- Render game to texture ---
         BeginTextureMode(target);
         ClearBackground(BLACK);
@@ -143,6 +150,7 @@ int main() {
         level.world.DrawOutlines(view);
         if (!isDead) PlayerDraw(&player, view);
         HotbarDraw(&hotbar, player.maskUses);
+        UINoiseDraw();
 
         for (const auto& t : level.texts) {
             Vector2 pos = view.GridToWorld(t.gx, t.gy);

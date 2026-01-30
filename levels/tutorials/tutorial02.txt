@@ -1,0 +1,31 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+END
+
+# World
+WORLD
+GOOOOOOOOO
+.OOOOOOOOO
+.OOOOOOOOO
+^OOOOOOOOO
+.OOOOOOOOO
+.OOOOOOOOO
+END
+
+# Player
+SPAWN 0 5
+
+# Masks
+START_MASK MASK_STONE
+MASK_USES 1
+
+NEXT_LEVEL levels/tutorials/tutorial03.txt
+
+TEXT 2 1 "Look out! There is fire ahead!"
+TEXT 2 2 "Thankfully, the STONE MASK negates fire damage!" 
+TEXT 2 3 "Once again, DO NOT press numbered keys!"

@@ -19,3 +19,8 @@ void HotbarInit(Hotbar* hb);
 void HotbarUpdate(Hotbar* hb, float dt, int* maskUses, bool playerMoving);
 void HotbarDraw(const Hotbar* hb, int maskUses);
 MaskType HotbarGetSelectedMask(const Hotbar* hb);
+void UINoiseInit();
+void UINoiseOnMaskChanged(MaskType mask);
+void UINoiseUpdate(float dt); 
+void UINoiseDraw(); 
+void UINoiseOnResize();

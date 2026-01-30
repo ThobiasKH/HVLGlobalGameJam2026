@@ -1,4 +1,5 @@
 #include "ui.h"
+#include <fstream>
 
 constexpr int SPRITE_SIZE  = 32;
 constexpr int SHEET_COLS   = 8;
@@ -74,7 +75,7 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
 
     int frame = (int)(hb->animTimer * MASK_FPS) % TOTAL_FRAMES;
 
-    DrawText(TextFormat("Mask swaps left: %d", maskUses), (float)(startX - 3 * slotSize), (float)(barY + (UI_HEIGHT - slotSize)/2), 
+    DrawText(TextFormat("Swaps until DEATH: %d", maskUses), (float)(startX - 3 * slotSize), (float)(barY + (UI_HEIGHT - slotSize)/2), 
             slotSize / 4, maskUses > 1 ? RAYWHITE : RED);
 
     for (int i = 0; i < HOTBAR_SLOTS; i++) {
@@ -122,5 +123,142 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
 
         if (i != hb->selected) 
             DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 3, WHITE);
+    }
+}
+
+struct NoiseText {
+    std::string text;
+    Vector2 pos;
+    Vector2 vel;
+    float size;
+    float lifetime;
+};
+
+struct UINoise {
+    std::vector<NoiseText> lines;
+    Rectangle bounds;
+};
+
+static UINoise gNoise;
+static MaskType gLastMask = MASK_NONE;
+
+static std::vector<std::string> LoadNoiseLines(const std::string& path) {
+    std::vector<std::string> out;
+    std::ifstream f(path);
+    std::string line;
+
+    while (std::getline(f, line)) {
+        if (!line.empty())
+            out.push_back(line);
+    }
+    return out;
+}
+
+void UINoiseInit() {
+    gNoise.bounds = {
+        0,
+        (float)GetScreenHeight() - UI_HEIGHT,
+        (float)GetScreenWidth(),
+        (float)UI_HEIGHT
+    };
+}
+
+void UINoiseOnMaskChanged(MaskType mask) {
+    if (mask == gLastMask) return;
+    gLastMask = mask;
+
+    gNoise.lines.clear();
+
+    std::string path;
+    switch (mask) {
+        case MASK_STONE: path = "assets/text/stone.txt"; break;
+        case MASK_WIND:  path = "assets/text/wind.txt";  break;
+        default: return;
+    }
+
+    auto pool = LoadNoiseLines(path);
+    if (pool.empty()) return;
+
+    for (int i = 0; i < 40; i++) {
+        NoiseText t;
+        t.text = pool[GetRandomValue(0, pool.size() - 1)];
+        t.pos = {
+            (float)GetRandomValue(
+                    (int)gNoise.bounds.x,
+                    (int)(gNoise.bounds.x + gNoise.bounds.width)
+                    ),
+            (float)GetRandomValue(
+                    (int)gNoise.bounds.y,
+                    (int)(gNoise.bounds.y + gNoise.bounds.height)
+                    )
+        };
+        t.vel = {
+            GetRandomValue(-40, 40) / 10.0f,
+            GetRandomValue(-40, 40) / 10.0f
+        };
+        t.size = GetRandomValue(10, 20);
+        t.lifetime = GetRandomValue(1, 5);
+
+        gNoise.lines.push_back(t);
+    }
+}
+
+
+void UINoiseUpdate(float dt) {
+    for (auto& t : gNoise.lines) {
+        t.pos.x += t.vel.x + GetRandomValue(-2, 2);
+        t.pos.y += t.vel.y + GetRandomValue(-2, 2);
+
+        t.lifetime -= dt;
+        if (t.lifetime <= 0.0f) {
+            t.vel.x = GetRandomValue(-40, 40) / 10.0f;
+            t.vel.y = GetRandomValue(-40, 40) / 10.0f;
+            t.lifetime = GetRandomValue(1, 5);
+        }
+
+        if (t.pos.x < gNoise.bounds.x) t.pos.x += gNoise.bounds.width;
+        if (t.pos.y < gNoise.bounds.y) t.pos.y += gNoise.bounds.height;
+        if (t.pos.x > gNoise.bounds.x + gNoise.bounds.width) t.pos.x -= gNoise.bounds.width;
+        if (t.pos.y > gNoise.bounds.y + gNoise.bounds.height) t.pos.y -= gNoise.bounds.height;
+    }
+}
+
+
+void UINoiseDraw() {
+    for (const auto& t : gNoise.lines) {
+        Color c = {
+            (unsigned char)GetRandomValue(180, 255),
+            (unsigned char)GetRandomValue(180, 255),
+            (unsigned char)GetRandomValue(180, 255),
+            120
+        };
+
+        DrawText(
+            t.text.c_str(),
+            (int)t.pos.x,
+            (int)t.pos.y,
+            (int)t.size,
+            c
+        );
+    }
+}
+
+void UINoiseOnResize() {
+    Rectangle old = gNoise.bounds;
+
+    gNoise.bounds = {
+        0,
+        (float)GetScreenHeight() - UI_HEIGHT,
+        (float)GetScreenWidth(),
+        (float)UI_HEIGHT
+    };
+
+    // Reposition existing noise proportionally
+    for (auto& t : gNoise.lines) {
+        float nx = (t.pos.x - old.x) / old.width;
+        float ny = (t.pos.y - old.y) / old.height;
+
+        t.pos.x = gNoise.bounds.x + nx * gNoise.bounds.width;
+        t.pos.y = gNoise.bounds.y + ny * gNoise.bounds.height;
     }
 }
