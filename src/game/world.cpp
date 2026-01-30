@@ -48,6 +48,7 @@ void World::Draw(const View& view) const {
                 case TILE_WALL : c = GRAY; break;
                 case TILE_SPIKES : c = ORANGE; break;
                 case TILE_PIT : c = DARKBLUE; break;
+                case TILE_GOAL : c = GOLD; break;
                 default: break;
             }
 

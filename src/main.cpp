@@ -1,3 +1,5 @@
+#include <iostream>
+#include <filesystem>
 #include <raylib.h>
 #include "config.h"
 #include "game/player.h"
@@ -69,7 +71,6 @@ int main() {
         }
 
         PlayerUpdate(&player, dt, level.world, view);
-        level.world.Draw(view);
         if (player.mask == MASK_NONE) {
             DrawText("Choose a mask", 20, 20, 20, WHITE);
         }
@@ -82,6 +83,10 @@ int main() {
             Tile t = level.world.Get(player.gx, player.gy);
 
             if (t == TILE_GOAL && LevelHasNext(level)) {
+                std::cout << level.nextLevelPath << std::endl;
+                std::cout << "Exists? "
+                    << std::filesystem::exists(level.nextLevelPath)
+                    << std::endl;
                 if (!level.LoadFromFile(level.nextLevelPath)) {
                     TraceLog(LOG_ERROR, "Failed to load next level"); 
                 }
@@ -95,6 +100,7 @@ int main() {
         ClearBackground(BLACK);
 
         // draw tiles using view.tileSize / offsets
+        level.world.Draw(view);
         PlayerDraw(&player, view);
         HotbarDraw(&hotbar, player.maskUses);
 

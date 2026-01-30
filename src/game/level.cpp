@@ -11,7 +11,6 @@ static MaskType ParseMask(const std::string& s) {
 }
 
 bool Level::LoadFromFile(const std::string& path) {
-    nextLevelPath.clear();
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open level: " << path << "\n";
@@ -25,6 +24,8 @@ bool Level::LoadFromFile(const std::string& path) {
     enum Section { NONE, LEGEND, WORLD };
     Section section = NONE;
 
+
+    nextLevelPath.clear();
     while (std::getline(file, line)) {
         if (line.empty() || line[0] == '#') continue;
 
