@@ -42,6 +42,7 @@ struct AnimDef {
     int walkStartFrame;   // usually 1
     int walkFrameCount;   // number of frames AFTER idle
 
+    int columns;
     float fps;            // e.g. 12.0f
 };
 

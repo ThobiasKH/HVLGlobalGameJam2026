@@ -141,7 +141,7 @@ int main() {
 
         level.world.Draw(view);
         level.world.DrawOutlines(view);
-        PlayerDraw(&player, view);
+        if (!isDead) PlayerDraw(&player, view);
         HotbarDraw(&hotbar, player.maskUses);
 
         for (const auto& t : level.texts) {

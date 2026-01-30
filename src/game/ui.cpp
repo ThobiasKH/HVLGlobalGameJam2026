@@ -75,7 +75,7 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
     int frame = (int)(hb->animTimer * MASK_FPS) % TOTAL_FRAMES;
 
     DrawText(TextFormat("Mask swaps left: %d", maskUses), (float)(startX - 3 * slotSize), (float)(barY + (UI_HEIGHT - slotSize)/2), 
-            slotSize / 4, WHITE);
+            slotSize / 4, maskUses > 1 ? RAYWHITE : RED);
 
     for (int i = 0; i < HOTBAR_SLOTS; i++) {
         int x = startX + i * (slotSize + padding);

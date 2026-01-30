@@ -10,7 +10,7 @@ constexpr int TARGET_FPS = 60;
 #define SCREEN_HEIGHT 600
 
 #define HOTBAR_SLOTS 2
-#define UI_HEIGHT 128
+#define UI_HEIGHT 256
 
 constexpr float DEATH_SCREEN_DURATION = 3.0f;
 
