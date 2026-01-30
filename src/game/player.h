@@ -23,6 +23,8 @@ struct Player {
 };
 
 void PlayerInit(Player* p, int x, int y, const View& view);
+void PlayerReset(Player* p, int x, int y, const View& view);
+bool PlayerShouldBeAlive(Player* p, const World& world);
 void PlayerUpdate(Player* p, float dt, const World& world, const View& view);
 void PlayerDraw(const Player* p, const View& view);
 void PlayerTryMove(Player* p, int dx, int dy, const World& world, const View& view);

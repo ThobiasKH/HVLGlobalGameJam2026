@@ -25,8 +25,10 @@ void HotbarInit(Hotbar* hb) {
     }
 }
 
-void HotbarUpdate(Hotbar* hb, float dt, int* maskUses) {
+void HotbarUpdate(Hotbar* hb, float dt, int* maskUses, bool playerMoving) {
     hb->animTimer += dt;
+
+    if (playerMoving) return;
 
     int change = 0;
 

@@ -8,20 +8,34 @@
 
 #include <algorithm>
 
+void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
+    // View
+    view->gridW = level->world.width;
+    view->gridH = level->world.height;
+    view->Recalculate();
+
+    // Player
+    PlayerInit(p, level->spawnX, level->spawnY, *view);
+    p->mask = level->startMask;
+    p->maskUses = level->maskUses;
+
+    // Hotbar
+    HotbarInit(hb);
+    for (int i = 0; i < HOTBAR_SLOTS; i++) {
+        if (hb->slots[i].mask == level->startMask) {
+            hb->selected = i;
+            break;
+        }
+    }
+}
+   
+
 int main() {
     Level level;
     level.LoadFromFile("levels/level01.txt");
 
     View view;
-    view.gridW = level.world.width;
-    view.gridH = level.world.height;
-
     Player player;
-
-    PlayerInit(&player, level.spawnX, level.spawnY, view);
-    player.mask = level.startMask;
-    player.maskUses = level.maskUses;
-
 
     InitWindow(1280, 960 + UI_HEIGHT, "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
     SetTargetFPS(60);
@@ -29,9 +43,8 @@ int main() {
     // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
     Hotbar hotbar;
-    HotbarInit(&hotbar);
+    InitializeFromLevel(&level, &view, &player, &hotbar);
 
-    view.Recalculate();
     PlayerSyncVisual(&player, view);
 
     while (!WindowShouldClose()) {
@@ -39,29 +52,30 @@ int main() {
 
         view.Recalculate();
 
-        if (resized && !player.moving) {
+        if (resized) {
             PlayerSyncVisual(&player, view);
         }
 
         float dt = GetFrameTime();
 
-        HotbarUpdate(&hotbar, dt, &(player.maskUses));
+        HotbarUpdate(&hotbar, dt, &(player.maskUses), player.moving);
         player.mask = HotbarGetSelectedMask(&hotbar);
-
 
         if (!player.moving) {
             if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))    PlayerTryMove(&player, 0, -1, level.world, view);
             if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))  PlayerTryMove(&player, 0,  1, level.world, view);
             if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))  PlayerTryMove(&player, -1, 0, level.world, view);
             if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) PlayerTryMove(&player,  1, 0, level.world, view);
-
-            
         }
 
         PlayerUpdate(&player, dt, level.world, view);
         level.world.Draw(view);
         if (player.mask == MASK_NONE) {
             DrawText("Choose a mask", 20, 20, 20, WHITE);
+        }
+
+        if (!PlayerShouldBeAlive(&player, level.world)) {
+            InitializeFromLevel(&level, &view, &player, &hotbar);
         }
 
         BeginDrawing();

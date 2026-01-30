@@ -15,6 +15,10 @@ void PlayerInit(Player* p, int x, int y, const View& view) {
     p->mask = MASK_NONE;
 }
 
+void PlayerReset(Player* p, int x, int y, const View& view) {
+    PlayerInit(p, x, y, view);
+}
+
 
 static void StartMove(Player* p, int nx, int ny, const View& view) {
     p->gx = nx;
@@ -27,6 +31,12 @@ static void StartMove(Player* p, int nx, int ny, const View& view) {
     p->moving = true;
     p->duration = MaskMoveDuration(p->mask);
 }
+
+bool PlayerShouldBeAlive(Player* p, const World& world) {
+    if (p->maskUses <= 0) return false;  
+    if (world.IsDeadly(p->gx, p->gy, p->mask)) return false;
+    return true;
+}  
 
 void PlayerTryMove(
     Player* p,
@@ -42,10 +52,10 @@ void PlayerTryMove(
     int ny = p->gy + dy;
 
     if (!world.IsWalkable(nx, ny, p->mask)) return;
-    if (world.IsDeadly(p->gx, p->gy, p->mask)) {
+    // if (world.IsDeadly(p->gx, p->gy, p->mask)) {
         // we dead bruh
-        return;
-        }
+       // return;
+        //}
 
     StartMove(p, nx, ny, view);
 
