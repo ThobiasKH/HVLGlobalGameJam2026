@@ -6,11 +6,13 @@ constexpr int TARGET_FPS = 60;
 #define GRID_W 16
 #define GRID_H 12
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 960
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
-#define HOTBAR_SLOTS 4
-#define UI_HEIGHT 96
+#define HOTBAR_SLOTS 2
+#define UI_HEIGHT 128
+
+constexpr float DEATH_SCREEN_DURATION = 3.0f;
 
 // Post-processing shizz
 #define ENABLE_CRT        1
