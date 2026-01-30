@@ -73,7 +73,12 @@ void PlayerTryMove(
 
 
 void PlayerUpdate(Player* p, float dt, const World& world, const View& view) {
-    if (!p->moving) return;
+    if (p->moving) {
+        p->animTime += dt;
+    } else {
+        p->animTime = 0.0f;
+        return;
+    }
 
     p->timer += dt;
     float t = p->timer / p->duration;

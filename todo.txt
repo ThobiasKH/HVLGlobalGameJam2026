@@ -18,10 +18,5 @@ Mask of fire
 and so on.. 
 
 TODO: 
-- Fix bug where changing mask on potentiall deadly square doesn't 
-kill the player 
-- Implement level stuff so die -> respawn and so on 
-- Consolidate mask logic and stuff to player. I.e. check if 
-block is deadly AFTER we move onto it, should fix afforementioened bug
-- Implement more masks, and make sprites
+- Move stone player up 2 pixels 
 
