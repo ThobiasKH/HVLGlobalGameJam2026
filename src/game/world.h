@@ -11,7 +11,7 @@ enum Tile {
     TILE_SPIKES,
     TILE_PIT,
     TILE_GOAL,
-    TILE_GLASS
+    TILE_GLASS 
 };
 
 struct World {

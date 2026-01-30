@@ -11,6 +11,7 @@ static MaskType ParseMask(const std::string& s) {
 }
 
 bool Level::LoadFromFile(const std::string& path) {
+    nextLevelPath.clear();
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open level: " << path << "\n";
@@ -42,6 +43,8 @@ bool Level::LoadFromFile(const std::string& path) {
             if (tileName == "TILE_WALL")   legend[c] = TILE_WALL;
             if (tileName == "TILE_SPIKES") legend[c] = TILE_SPIKES;
             if (tileName == "TILE_PIT")    legend[c] = TILE_PIT;
+            if (tileName == "TILE_GOAL")   legend[c] = TILE_GOAL;
+            if (tileName == "TILE_GLASS")  legend[c] = TILE_GLASS;
         }
         else if (section == WORLD) {
             worldLines.push_back(line);
@@ -60,6 +63,9 @@ bool Level::LoadFromFile(const std::string& path) {
             }
             else if (key == "MASK_USES") {
                 ss >> maskUses;
+            }
+            else if (key == "NEXT_LEVEL") {
+                ss >> nextLevelPath;
             }
         }
     }
@@ -92,4 +98,8 @@ bool Level::LoadFromFile(const std::string& path) {
     }
 
     return true;
+}
+
+bool LevelHasNext(const Level& level) {
+    return !level.nextLevelPath.empty();
 }

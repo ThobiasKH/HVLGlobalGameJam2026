@@ -78,6 +78,19 @@ int main() {
             InitializeFromLevel(&level, &view, &player, &hotbar);
         }
 
+        if (!player.moving) {
+            Tile t = level.world.Get(player.gx, player.gy);
+
+            if (t == TILE_GOAL && LevelHasNext(level)) {
+                if (!level.LoadFromFile(level.nextLevelPath)) {
+                    TraceLog(LOG_ERROR, "Failed to load next level"); 
+                }
+                else {
+                    InitializeFromLevel(&level, &view, &player, &hotbar);
+                }
+            }
+        }
+
         BeginDrawing();
         ClearBackground(BLACK);
 

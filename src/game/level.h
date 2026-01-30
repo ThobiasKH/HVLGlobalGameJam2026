@@ -14,7 +14,11 @@ struct Level {
     int maskUses;
 
     bool LoadFromFile(const std::string& path);
+
+    std::string nextLevelPath;
 };
+
+bool LevelHasNext(const Level &level);
 
 
 
