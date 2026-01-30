@@ -2,7 +2,7 @@
 LEGEND
 . TILE_EMPTY
 w TILE_WALL
-^ TILE_SPIKES
+^ TILE_FLAME
 O TILE_PIT
 G TILE_GOAL
 END
@@ -11,9 +11,9 @@ END
 WORLD
 wwwwwwwwww
 w........w
-w..^..O..w
-w........w
-w........w
+wOO^O.O..w
+w.O.OOO..w
+w.OOOO...w
 wwwwwwwwww
 END
 

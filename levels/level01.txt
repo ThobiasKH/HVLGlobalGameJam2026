@@ -2,7 +2,7 @@
 LEGEND
 . TILE_EMPTY
 w TILE_WALL
-^ TILE_SPIKES
+^ TILE_FLAME
 O TILE_PIT
 G TILE_GOAL
 END
@@ -10,10 +10,11 @@ END
 # World
 WORLD
 wwwwwwwwww
+w...^....w
+wwwwwwww.w
 w........w
-w..^..O..w
-w........w
-w...G....w
+wOwwwwwwww
+w.......Gw
 wwwwwwwwww
 END
 
@@ -22,5 +23,5 @@ SPAWN 1 1
 
 # Masks
 START_MASK MASK_WIND
-MASK_USES 5
+MASK_USES 3
 NEXT_LEVEL levels/level02.txt

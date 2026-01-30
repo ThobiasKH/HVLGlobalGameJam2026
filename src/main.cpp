@@ -41,6 +41,7 @@ int main() {
 
     InitWindow(1280, 960 + UI_HEIGHT, "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
     SetTargetFPS(60);
+    LoadTileTextures();
     // Optional:
     // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
@@ -101,10 +102,13 @@ int main() {
 
         // draw tiles using view.tileSize / offsets
         level.world.Draw(view);
+        level.world.DrawOutlines(view);
         PlayerDraw(&player, view);
         HotbarDraw(&hotbar, player.maskUses);
 
         EndDrawing();
     }
     // delete world;
+    UnloadTileTextures();
+    CloseWindow();
 }

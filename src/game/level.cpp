@@ -42,7 +42,7 @@ bool Level::LoadFromFile(const std::string& path) {
 
             if (tileName == "TILE_EMPTY")  legend[c] = TILE_EMPTY;
             if (tileName == "TILE_WALL")   legend[c] = TILE_WALL;
-            if (tileName == "TILE_SPIKES") legend[c] = TILE_SPIKES;
+            if (tileName == "TILE_FLAME")  legend[c] = TILE_FLAME;
             if (tileName == "TILE_PIT")    legend[c] = TILE_PIT;
             if (tileName == "TILE_GOAL")   legend[c] = TILE_GOAL;
             if (tileName == "TILE_GLASS")  legend[c] = TILE_GLASS;
