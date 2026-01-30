@@ -34,13 +34,13 @@ void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
 
 int main() {
     Level level;
-    level.LoadFromFile("levels/tutorials/tutorial01.txt");
+    level.LoadFromFile("levels/level01.txt");
 
     View view;
     Player player;
 
-    InitWindow(1280, 960 + UI_HEIGHT, "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
-    SetTargetFPS(60);
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + UI_HEIGHT, "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
+    SetTargetFPS(TARGET_FPS);
     LoadTileTextures();
     InitMaskAnimations();
     // Optional:
@@ -51,6 +51,33 @@ int main() {
 
     PlayerSyncVisual(&player, view);
 
+    RenderTexture2D target = LoadRenderTexture(
+        GetScreenWidth(),
+        GetScreenHeight()
+    );
+
+    Shader crtShader = LoadShader(0, "assets/shaders/crt.fs");
+
+    // --- Uniform locations ---
+    int timeLoc       = GetShaderLocation(crtShader, "time");
+    int curvatureLoc  = GetShaderLocation(crtShader, "curvature");
+    int scanlineLoc   = GetShaderLocation(crtShader, "scanlineIntensity");
+    int vignetteLoc   = GetShaderLocation(crtShader, "vignette");
+    int ditherLoc     = GetShaderLocation(crtShader, "ditherStrength");
+    int resLoc        = GetShaderLocation(crtShader, "resolution");
+    int chromLoc  = GetShaderLocation(crtShader, "chromAberration");
+    int jitterLoc = GetShaderLocation(crtShader, "jitterStrength");
+    int jitterSpd = GetShaderLocation(crtShader, "jitterSpeed");
+
+    // --- Static uniforms ---
+    SetShaderValue(crtShader, curvatureLoc,  &CRT_CURVATURE,          SHADER_UNIFORM_FLOAT);
+    SetShaderValue(crtShader, scanlineLoc,   &CRT_SCANLINE_INTENSITY, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(crtShader, vignetteLoc,   &CRT_VIGNETTE,           SHADER_UNIFORM_FLOAT);
+    SetShaderValue(crtShader, ditherLoc,     &DITHER_STRENGTH,        SHADER_UNIFORM_FLOAT);
+    SetShaderValue(crtShader, chromLoc,  &CHROM_ABERRATION, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(crtShader, jitterLoc, &JITTER_STRENGTH, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(crtShader, jitterSpd, &JITTER_SPEED,    SHADER_UNIFORM_FLOAT);
+
     while (!WindowShouldClose()) {
         bool resized = IsWindowResized();
 
@@ -58,6 +85,11 @@ int main() {
 
         if (resized) {
             PlayerSyncVisual(&player, view);
+            UnloadRenderTexture(target);
+            target = LoadRenderTexture(
+                GetScreenWidth(),
+                GetScreenHeight()
+            );
         }
 
         float dt = GetFrameTime();
@@ -98,26 +130,49 @@ int main() {
             }
         }
 
+        BeginTextureMode(target);
+            ClearBackground(BLACK);
+
+            level.world.Draw(view);
+            level.world.DrawOutlines(view);
+            PlayerDraw(&player, view);
+            HotbarDraw(&hotbar, player.maskUses);
+
+            // level text
+            for (const auto& t : level.texts) {
+                Vector2 pos = view.GridToWorld(t.gx, t.gy);
+                DrawText(t.text.c_str(), pos.x, pos.y, view.tileSize / 4, RAYWHITE);
+            }   
+        EndTextureMode();
+
+        float t = GetTime();
+        SetShaderValue(crtShader, timeLoc, &t, SHADER_UNIFORM_FLOAT);
+
+        Vector2 res = {
+            (float)GetScreenWidth(),
+            (float)GetScreenHeight()
+        };
+        SetShaderValue(crtShader, resLoc, &res, SHADER_UNIFORM_VEC2);
+
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // draw tiles using view.tileSize / offsets
-        level.world.Draw(view);
-        level.world.DrawOutlines(view);
-        PlayerDraw(&player, view);
-        HotbarDraw(&hotbar, player.maskUses);
+        #if ENABLE_CRT
+            BeginShaderMode(crtShader);
+        #endif
 
-        for (const LevelText& t : level.texts) {
-            Vector2 pos = view.GridToWorld(t.gx, t.gy);
-
-            DrawText(
-                t.text.c_str(),
-                (int)pos.x,
-                (int)pos.y,
-                view.tileSize / 4,   
-                RAYWHITE
+            DrawTexturePro(
+                target.texture,
+                Rectangle{0, 0, (float)target.texture.width, -(float)target.texture.height},
+                Rectangle{0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()},
+                Vector2{0, 0},
+                0.0f,
+                WHITE
             );
-        }
+
+        #if ENABLE_CRT
+            EndShaderMode();
+        #endif
 
         EndDrawing();
     }
