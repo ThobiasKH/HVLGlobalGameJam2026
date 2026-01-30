@@ -42,6 +42,7 @@ int main() {
     InitWindow(1280, 960 + UI_HEIGHT, "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
     SetTargetFPS(60);
     LoadTileTextures();
+    InitMaskAnimations();
     // Optional:
     // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 

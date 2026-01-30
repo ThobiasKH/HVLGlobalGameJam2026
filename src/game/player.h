@@ -1,9 +1,17 @@
 #pragma once
 #include <raylib.h>
 #include <queue>
+#include <unordered_map>
 #include "world.h"
 #include "view.h"
 #include "mask.h"
+
+enum Direction {
+    DIR_UP,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_RIGHT
+};
 
 struct Player {
     int gx, gy;
@@ -20,7 +28,31 @@ struct Player {
 
     Vector2 slideDir; 
     int maskUses;
+
+    Direction facing;
+    float animTime;
 };
+
+struct AnimDef {
+    Texture2D texture;
+    int frameWidth;
+    int frameHeight;
+
+    int idleFrame;        // usually 0
+    int walkStartFrame;   // usually 1
+    int walkFrameCount;   // number of frames AFTER idle
+
+    float fps;            // e.g. 12.0f
+};
+
+
+struct MaskAnimations {
+    AnimDef up;
+    AnimDef down;
+    AnimDef left;
+    AnimDef right;
+};
+
 
 void PlayerInit(Player* p, int x, int y, const View& view);
 void PlayerReset(Player* p, int x, int y, const View& view);
@@ -29,3 +61,4 @@ void PlayerUpdate(Player* p, float dt, const World& world, const View& view);
 void PlayerDraw(const Player* p, const View& view);
 void PlayerTryMove(Player* p, int dx, int dy, const World& world, const View& view);
 void PlayerSyncVisual(Player* p, const View& view);
+void InitMaskAnimations();
