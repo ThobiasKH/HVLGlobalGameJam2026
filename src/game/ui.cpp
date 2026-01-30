@@ -39,7 +39,7 @@ MaskType HotbarGetSelectedMask(const Hotbar* hb) {
     return hb->slots[hb->selected].mask;
 }
 
-void HotbarDraw(const Hotbar* hb) {
+void HotbarDraw(const Hotbar* hb, int maskUses) {
     int screenW = GetScreenWidth();
     int screenH = GetScreenHeight();
 
@@ -95,5 +95,8 @@ void HotbarDraw(const Hotbar* hb) {
             0.0f,
             WHITE
         );
+
+        if (i != hb->selected) 
+            DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 2, WHITE);
     }
 }
