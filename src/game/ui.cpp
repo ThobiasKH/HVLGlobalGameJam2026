@@ -1,5 +1,6 @@
 #include "ui.h"
 #include <fstream>
+#include <cmath>
 
 constexpr int SPRITE_SIZE  = 32;
 constexpr int SHEET_COLS   = 8;
@@ -132,6 +133,9 @@ struct NoiseText {
     Vector2 vel;
     float size;
     float lifetime;
+
+    float rage;        // 0–1 intensity
+    float shakePhase;  // for oscillation and such
 };
 
 struct UINoise {
@@ -193,11 +197,14 @@ void UINoiseOnMaskChanged(MaskType mask) {
                     )
         };
         t.vel = {
-            GetRandomValue(-40, 40) / 10.0f,
-            GetRandomValue(-40, 40) / 10.0f
+            GetRandomValue(-40, 40) / 1.0f,
+            GetRandomValue(-35, 35) / 1.0f
         };
-        t.size = GetRandomValue(10, 20);
+        t.size = GetRandomValue(TILE_SIZE * 2, TILE_SIZE * 3.5);
         t.lifetime = GetRandomValue(1, 5);
+
+        t.rage = GetRandomValue(40, 100) / 100.0f;  // 0.4 – 1.0
+        t.shakePhase = GetRandomValue(0, 1000) / 1000.0f;
 
         gNoise.lines.push_back(t);
     }
@@ -205,15 +212,32 @@ void UINoiseOnMaskChanged(MaskType mask) {
 
 
 void UINoiseUpdate(float dt) {
+    float damping = powf(0.98f, dt * 60.0f);
+
     for (auto& t : gNoise.lines) {
-        t.pos.x += t.vel.x + GetRandomValue(-2, 2);
-        t.pos.y += t.vel.y + GetRandomValue(-2, 2);
+        t.pos.x += t.vel.x * dt;
+        t.pos.y += t.vel.y * dt;
+
+        t.vel.x *= damping;
+        t.vel.y *= damping;
+
+        // float shake = 3.0f + 10.0f * t.rage;
+        // t.shakePhase += dt * (8.0f + 12.0f * t.rage);
+
+        // t.pos.x += sinf(t.shakePhase * 12.0f) * shake * dt;
+        // t.pos.y += cosf(t.shakePhase * 9.0f)  * shake * dt;
+
+        if (GetRandomValue(0, 1000) < 5) {
+            t.vel.x += GetRandomValue(-20, 20) / 10.0f;
+            t.vel.y += GetRandomValue(-15, 15) / 10.0f;
+        }
 
         t.lifetime -= dt;
         if (t.lifetime <= 0.0f) {
-            t.vel.x = GetRandomValue(-40, 40) / 10.0f;
-            t.vel.y = GetRandomValue(-40, 40) / 10.0f;
+            t.vel.x += GetRandomValue(-15, 15) * 5.5f;
+            t.vel.y += GetRandomValue(-10, 10) * 5.5f;
             t.lifetime = GetRandomValue(1, 5);
+            t.rage = GetRandomValue(40, 100) / 100.0f;
         }
 
         if (t.pos.x < gNoise.bounds.x) t.pos.x += gNoise.bounds.width;
@@ -226,18 +250,26 @@ void UINoiseUpdate(float dt) {
 
 void UINoiseDraw() {
     for (const auto& t : gNoise.lines) {
-        Color c = {
-            (unsigned char)GetRandomValue(180, 255),
-            (unsigned char)GetRandomValue(180, 255),
-            (unsigned char)GetRandomValue(180, 255),
-            120
-        };
+        unsigned char r = (unsigned char)GetRandomValue(180, 255);
+        unsigned char g = (unsigned char)GetRandomValue(0, 60);
+        unsigned char b = (unsigned char)GetRandomValue(0, 40);
+
+        unsigned char a = (unsigned char)GetRandomValue(80, 160);
+
+        Color c = { r, g, b, a };
+
+        float pulse = 1.0f + sinf(t.shakePhase * 0.7f) * 0.1f;
+        
+        float shake = 3.0f + 10.0f * t.rage;
+
+        float sx = sinf(t.shakePhase * 12.0f) * shake;
+        float sy = cosf(t.shakePhase * 9.0f)  * shake;
 
         DrawText(
             t.text.c_str(),
-            (int)t.pos.x,
-            (int)t.pos.y,
-            (int)t.size,
+            (int)(t.pos.x + sx),
+            (int)(t.pos.y + sy),
+            (int)(t.size * pulse),
             c
         );
     }
