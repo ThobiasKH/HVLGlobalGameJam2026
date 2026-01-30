@@ -6,7 +6,7 @@
 
 static MaskType ParseMask(const std::string& s) {
     if (s == "MASK_WIND") return MASK_WIND;
-    if (s == "MASK_ROCK") return MASK_STONE;
+    if (s == "MASK_STONE") return MASK_STONE;
     return MASK_NONE;
 }
 
@@ -26,6 +26,7 @@ bool Level::LoadFromFile(const std::string& path) {
 
 
     nextLevelPath.clear();
+    texts.clear();
     while (std::getline(file, line)) {
         if (line.empty() || line[0] == '#') continue;
 
@@ -50,6 +51,8 @@ bool Level::LoadFromFile(const std::string& path) {
         else if (section == WORLD) {
             worldLines.push_back(line);
         }
+
+
         else {
             std::string key;
             ss >> key;
@@ -67,6 +70,24 @@ bool Level::LoadFromFile(const std::string& path) {
             }
             else if (key == "NEXT_LEVEL") {
                 ss >> nextLevelPath;
+            }
+
+            else if (key == "TEXT") {
+                LevelText t;
+                ss >> t.gx >> t.gy;
+
+                std::getline(ss, t.text);
+
+                // remove leading space
+                if (!t.text.empty() && t.text[0] == ' ')
+                    t.text.erase(0, 1);
+
+                // remove quotes if present
+                // if (t.text.size() >= 2 && t.text.front() == '"' && t.text.back() == '"') {
+                //    t.text = t.text.substr(1, t.text.size() - 2);
+                //}
+
+                texts.push_back(t);
             }
         }
     }

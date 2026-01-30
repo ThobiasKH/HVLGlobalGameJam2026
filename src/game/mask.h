@@ -8,7 +8,7 @@ enum MaskType {
 
 inline float MaskMoveDuration(MaskType mask) {
     switch (mask) {
-        case MASK_STONE: return 0.30f; 
+        case MASK_STONE: return 0.50f; 
         case MASK_WIND:  return 0.10f; 
         default:         return 0.15f;
     }

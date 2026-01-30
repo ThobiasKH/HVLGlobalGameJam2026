@@ -24,4 +24,5 @@ SPAWN 1 1
 # Masks
 START_MASK MASK_WIND
 MASK_USES 3
+
 NEXT_LEVEL levels/level02.txt

@@ -34,7 +34,7 @@ void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
 
 int main() {
     Level level;
-    level.LoadFromFile("levels/level01.txt");
+    level.LoadFromFile("levels/tutorials/tutorial01.txt");
 
     View view;
     Player player;
@@ -106,6 +106,18 @@ int main() {
         level.world.DrawOutlines(view);
         PlayerDraw(&player, view);
         HotbarDraw(&hotbar, player.maskUses);
+
+        for (const LevelText& t : level.texts) {
+            Vector2 pos = view.GridToWorld(t.gx, t.gy);
+
+            DrawText(
+                t.text.c_str(),
+                (int)pos.x,
+                (int)pos.y,
+                view.tileSize / 4,   
+                RAYWHITE
+            );
+        }
 
         EndDrawing();
     }
