@@ -28,10 +28,10 @@ void HotbarInit(Hotbar* hb) {
 void HotbarUpdate(Hotbar* hb, float dt) {
     hb->animTimer += dt;
 
-    if (IsKeyPressed(KEY_ONE))   hb->selected = 0;
-    if (IsKeyPressed(KEY_TWO))   hb->selected = 1;
-    if (IsKeyPressed(KEY_THREE)) hb->selected = 2;
-    if (IsKeyPressed(KEY_FOUR))  hb->selected = 3;
+    if (IsKeyPressed(KEY_ONE))   {hb->selected = 0; hb->animTimer = 0.0f;}
+    if (IsKeyPressed(KEY_TWO))   {hb->selected = 1; hb->animTimer = 0.0f;}
+    if (IsKeyPressed(KEY_THREE)) {hb->selected = 2; hb->animTimer = 0.0f;}
+    if (IsKeyPressed(KEY_FOUR))  {hb->selected = 3; hb->animTimer = 0.0f;}
 }
 
 MaskType HotbarGetSelectedMask(const Hotbar* hb) {
@@ -95,7 +95,5 @@ void HotbarDraw(const Hotbar* hb) {
             0.0f,
             WHITE
         );
-
-        DrawText("1", x + slotSize - 14, y + slotSize - 18, 16, WHITE);
     }
 }

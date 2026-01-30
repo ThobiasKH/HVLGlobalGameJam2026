@@ -19,6 +19,7 @@ struct Player {
     MaskType mask; 
 
     Vector2 slideDir; 
+    int maskUses;
 };
 
 void PlayerInit(Player* p, int x, int y, const View& view);

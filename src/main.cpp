@@ -4,38 +4,35 @@
 #include "game/world.h"
 #include "game/mask.h"
 #include "game/ui.h"
+#include "game/level.h"
 
 #include <algorithm>
 
 int main() {
-
-    // World* world = new World(); 
-    World world;
-    // world->width = 16;
-    world.width = 16;
-    world.height = 12;
-    world.tiles.resize(world.width * world.height, TILE_EMPTY);
-
-    world.tiles[5] = TILE_SPIKES;
-    world.tiles[9] = TILE_PIT; 
-    world.tiles[11] = TILE_WALL;
+    Level level;
+    level.LoadFromFile("levels/level01.txt");
 
     View view;
-    view.gridW = world.width;
-    view.gridH = world.height;
+    view.gridW = level.world.width;
+    view.gridH = level.world.height;
 
     Player player;
+
+    PlayerInit(&player, level.spawnX, level.spawnY, view);
+    player.mask = level.startMask;
+    player.maskUses = level.maskUses;
+
 
     InitWindow(1280, 960 + UI_HEIGHT, "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
     SetTargetFPS(60);
     // Optional:
     // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
-    view.Recalculate();
-    PlayerInit(&player, 2, 2, view);
-
     Hotbar hotbar;
     HotbarInit(&hotbar);
+
+    view.Recalculate();
+    PlayerSyncVisual(&player, view);
 
     while (!WindowShouldClose()) {
         bool resized = IsWindowResized();
@@ -53,18 +50,19 @@ int main() {
 
 
         if (!player.moving) {
-            if (IsKeyPressed(KEY_UP))    PlayerTryMove(&player, 0, -1, world, view);
-            if (IsKeyPressed(KEY_DOWN))  PlayerTryMove(&player, 0,  1, world, view);
-            if (IsKeyPressed(KEY_LEFT))  PlayerTryMove(&player, -1, 0, world, view);
-            if (IsKeyPressed(KEY_RIGHT)) PlayerTryMove(&player,  1, 0, world, view);
+            if (IsKeyPressed(KEY_UP))    PlayerTryMove(&player, 0, -1, level.world, view);
+            if (IsKeyPressed(KEY_DOWN))  PlayerTryMove(&player, 0,  1, level.world, view);
+            if (IsKeyPressed(KEY_LEFT))  PlayerTryMove(&player, -1, 0, level.world, view);
+            if (IsKeyPressed(KEY_RIGHT)) PlayerTryMove(&player,  1, 0, level.world, view);
 
-            if (player.mask == MASK_NONE) {
-                DrawText("Choose a mask", 20, 20, 20, WHITE);
-            }
+            
         }
 
-        PlayerUpdate(&player, dt, world, view);
-        world.Draw(view);
+        PlayerUpdate(&player, dt, level.world, view);
+        level.world.Draw(view);
+        if (player.mask == MASK_NONE) {
+            DrawText("Choose a mask", 20, 20, 20, WHITE);
+        }
 
         BeginDrawing();
         ClearBackground(BLACK);
