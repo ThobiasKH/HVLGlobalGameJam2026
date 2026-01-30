@@ -25,13 +25,32 @@ void HotbarInit(Hotbar* hb) {
     }
 }
 
-void HotbarUpdate(Hotbar* hb, float dt) {
+void HotbarUpdate(Hotbar* hb, float dt, int* maskUses) {
     hb->animTimer += dt;
 
-    if (IsKeyPressed(KEY_ONE))   {hb->selected = 0; hb->animTimer = 0.0f;}
-    if (IsKeyPressed(KEY_TWO))   {hb->selected = 1; hb->animTimer = 0.0f;}
-    if (IsKeyPressed(KEY_THREE)) {hb->selected = 2; hb->animTimer = 0.0f;}
-    if (IsKeyPressed(KEY_FOUR))  {hb->selected = 3; hb->animTimer = 0.0f;}
+    int change = 0;
+
+    if (IsKeyPressed(KEY_ONE))   {
+        if (hb->selected != 0) change = 1;
+        hb->selected = 0; 
+    }
+    if (IsKeyPressed(KEY_TWO))   {
+        if (hb->selected != 1) change = 1;
+        hb->selected = 1; 
+    }
+    if (IsKeyPressed(KEY_THREE)) {
+        if (hb->selected != 2) change = 1;
+        hb->selected = 2; 
+    }
+    if (IsKeyPressed(KEY_FOUR))  {
+        if (hb->selected != 3) change = 1;
+        hb->selected = 3; 
+    }
+
+    if (change) {
+        *maskUses -= 1; 
+        hb->animTimer = 0.0f;
+    }
 }
 
 MaskType HotbarGetSelectedMask(const Hotbar* hb) {
@@ -52,6 +71,9 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
     int startX = (screenW - totalW) / 2;
 
     int frame = (int)(hb->animTimer * MASK_FPS) % TOTAL_FRAMES;
+
+    DrawText(TextFormat("Mask swaps left: %d", maskUses), (float)(startX - 3 * slotSize), (float)(barY + (UI_HEIGHT - slotSize)/2), 
+            slotSize / 4, WHITE);
 
     for (int i = 0; i < HOTBAR_SLOTS; i++) {
         int x = startX + i * (slotSize + padding);
@@ -97,6 +119,6 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
         );
 
         if (i != hb->selected) 
-            DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 2, WHITE);
+            DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 3, WHITE);
     }
 }

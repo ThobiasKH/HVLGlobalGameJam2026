@@ -45,15 +45,15 @@ int main() {
 
         float dt = GetFrameTime();
 
-        HotbarUpdate(&hotbar, dt);
+        HotbarUpdate(&hotbar, dt, &(player.maskUses));
         player.mask = HotbarGetSelectedMask(&hotbar);
 
 
         if (!player.moving) {
-            if (IsKeyPressed(KEY_UP))    PlayerTryMove(&player, 0, -1, level.world, view);
-            if (IsKeyPressed(KEY_DOWN))  PlayerTryMove(&player, 0,  1, level.world, view);
-            if (IsKeyPressed(KEY_LEFT))  PlayerTryMove(&player, -1, 0, level.world, view);
-            if (IsKeyPressed(KEY_RIGHT)) PlayerTryMove(&player,  1, 0, level.world, view);
+            if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))    PlayerTryMove(&player, 0, -1, level.world, view);
+            if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))  PlayerTryMove(&player, 0,  1, level.world, view);
+            if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))  PlayerTryMove(&player, -1, 0, level.world, view);
+            if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) PlayerTryMove(&player,  1, 0, level.world, view);
 
             
         }
@@ -69,7 +69,7 @@ int main() {
 
         // draw tiles using view.tileSize / offsets
         PlayerDraw(&player, view);
-        HotbarDraw(&hotbar);
+        HotbarDraw(&hotbar, player.maskUses);
 
         EndDrawing();
     }

@@ -16,6 +16,6 @@ struct Hotbar {
 };
 
 void HotbarInit(Hotbar* hb);
-void HotbarUpdate(Hotbar* hb, float dt);
-void HotbarDraw(const Hotbar* hb);
+void HotbarUpdate(Hotbar* hb, float dt, int* maskUses);
+void HotbarDraw(const Hotbar* hb, int maskUses);
 MaskType HotbarGetSelectedMask(const Hotbar* hb);
