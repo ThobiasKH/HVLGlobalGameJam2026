@@ -47,12 +47,26 @@ struct AnimDef {
     float fps;            // e.g. 12.0f
 };
 
+struct Anim {
+    Texture2D texture;
+    int numFrames;   // total frames in this sheet
+    int columns;     // frames per row
+
+    static constexpr int frameW = 32;
+    static constexpr int frameH = 32;
+    static constexpr float fps = 12.0f;
+};
+
+struct AnimPair {
+    Anim idle;
+    Anim walk;
+};
 
 struct MaskAnimations {
-    AnimDef up;
-    AnimDef down;
-    AnimDef left;
-    AnimDef right;
+    AnimPair up;
+    AnimPair down;
+    AnimPair left;
+    AnimPair right;
 };
 
 

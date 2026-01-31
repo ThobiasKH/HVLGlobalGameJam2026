@@ -78,12 +78,13 @@ void PlayerTryMove(
 
 
 void PlayerUpdate(Player* p, float dt, const World& world, const View& view) {
-    if (p->moving) {
-        p->animTime += dt;
-    } else {
-        p->animTime = 0.0f;
-        return;
-    }
+    //if (p->moving) {
+    //    p->animTime += dt;
+    //} else {
+    //    p->animTime = 0.0f;
+    //    return;
+    //}
+    p->animTime += dt;
 
     p->timer += dt;
     float t = p->timer / p->duration;
@@ -124,120 +125,78 @@ void InitMaskAnimations() {
     gMaskAnims[MASK_STONE] = {
         // UP
         {
-            LoadTexture("assets/player/STONE_UP.png"),
-            32, 32,
-            0,      // idle
-            1,      // walk start
-            6,      // walk frames
-            3, 
-            12.0f
+            { LoadTexture("assets/player/STONE_UP_IDLE.png"), 11, 3 },
+            { LoadTexture("assets/player/STONE_UP_WALK.png"), 4, 2 }
         },
         // DOWN
         {
-            LoadTexture("assets/player/STONE_DOWN.png"),
-            32, 32,
-            0, 
-            1, 
-            6, 
-            3, 
-            12.0f
+            { LoadTexture("assets/player/STONE_DOWN_IDLE.png"), 14, 4 },
+            { LoadTexture("assets/player/STONE_DOWN_WALK.png"), 8, 3 }
         },
         // LEFT
         {
-            LoadTexture("assets/player/STONE_LEFT.png"),
-            32, 32,
-            0, 
-            1, 
-            6, 
-            3, 
-            12.0f
+            { LoadTexture("assets/player/STONE_LEFT_IDLE.png"), 1, 2 },
+            { LoadTexture("assets/player/STONE_LEFT_WALK.png"), 4, 2 }
         },
         // RIGHT
         {
-            LoadTexture("assets/player/STONE_RIGHT.png"),
-            32, 32,
-            0, 
-            1, 
-            6, 
-            3,
-            12.0f
+            { LoadTexture("assets/player/STONE_RIGHT_IDLE.png"), 1, 2 },
+            { LoadTexture("assets/player/STONE_RIGHT_WALK.png"), 4, 2 }
         }
     };
     gMaskAnims[MASK_WIND] = {
         // UP
         {
-            LoadTexture("assets/player/WIND_UP.png"),
-            32, 32,
-            0,      // idle
-            1,      // walk start
-            3,      // walk frames
-            2, 
-            12.0f
+            { LoadTexture("assets/player/WIND_IDLE.png"), 6, 2 },
+            { LoadTexture("assets/player/WIND_UP_WALK.png"), 6, 2 }
         },
         // DOWN
         {
-            LoadTexture("assets/player/WIND_DOWN.png"),
-            32, 32,
-            0, 
-            1, 
-            3, 
-            2,
-            12.0f
+            { LoadTexture("assets/player/WIND_IDLE.png"), 6, 2 },
+            { LoadTexture("assets/player/WIND_DOWN_WALK.png"), 6, 2 }
         },
         // LEFT
         {
-            LoadTexture("assets/player/WIND_LEFT.png"),
-            32, 32,
-            0, 
-            1, 
-            3, 
-            2,
-            12.0f
+            { LoadTexture("assets/player/WIND_IDLE.png"), 6, 2 },
+            { LoadTexture("assets/player/WIND_LEFT_WALK.png"), 6, 2 }
         },
         // RIGHT
         {
-            LoadTexture("assets/player/WIND_RIGHT.png"),
-            32, 32,
-            0, 
-            1, 
-            3, 
-            2,
-            12.0f
+            { LoadTexture("assets/player/WIND_IDLE.png"), 6, 2 },
+            { LoadTexture("assets/player/WIND_RIGHT_WALK.png"), 6, 2 }
         }
     };
 }
 
-int GetPlayerFrame(const Player& p, const AnimDef& anim) {
-    if (!p.moving) {
-        return anim.idleFrame;
-    }
+int GetAnimFrame(const Player& p, const Anim& anim) {
+    if (anim.numFrames <= 1) return 0;
 
-    int index = (int)(p.animTime * anim.fps) % anim.walkFrameCount;
-    return anim.walkStartFrame + index;
+    int frame = (int)(p.animTime * Anim::fps);
+    return frame % anim.numFrames;
 }
 
 void PlayerDraw(const Player* p, const View& view) {
     const MaskAnimations& anims = gMaskAnims[p->mask];
-    const AnimDef* anim = nullptr;
+    const AnimPair* pair = nullptr;
 
     switch (p->facing) {
-        case DIR_UP:    anim = &anims.up; break;
-        case DIR_DOWN:  anim = &anims.down; break;
-        case DIR_LEFT:  anim = &anims.left; break;
-        case DIR_RIGHT: anim = &anims.right; break;
+        case DIR_UP:    pair = &anims.up; break;
+        case DIR_DOWN:  pair = &anims.down; break;
+        case DIR_LEFT:  pair = &anims.left; break;
+        case DIR_RIGHT: pair = &anims.right; break;
     }
 
-    int frame = GetPlayerFrame(*p, *anim);
+    const Anim& anim = p->moving ? pair->walk : pair->idle;
+    int frame = GetAnimFrame(*p, anim);
 
-
-    int col = frame % anim->columns;
-    int row = frame / anim->columns;
+    int col = frame % anim.columns;
+    int row = frame / anim.columns;
 
     Rectangle src = {
-        (float)(col * anim->frameWidth),
-        (float)(row * anim->frameHeight),
-        (float)anim->frameWidth,
-        (float)anim->frameHeight
+        (float)(col * Anim::frameW),
+        (float)(row * Anim::frameH),
+        (float)Anim::frameW,
+        (float)Anim::frameH
     };
 
     Rectangle dst = {
@@ -248,13 +207,13 @@ void PlayerDraw(const Player* p, const View& view) {
     };
 
     DrawTexturePro(
-            anim->texture,
-            src,
-            dst,
-            Vector2{0,0},
-            0.0f,
-            WHITE
-            );
+        anim.texture,
+        src,
+        dst,
+        Vector2{0, 0},
+        0.0f,
+        WHITE
+    );
 }
 
 void PlayerSyncVisual(Player* p, const View& view) {
