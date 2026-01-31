@@ -1,0 +1,32 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+END
+
+# World
+WORLD
+GOOOOOOOO.
+OOOOOOOOOO
+OOOOOOOOOO
+OOOOOOOOOO
+OOOOOOOOOO
+OOOOOOOOOO
+END
+
+# Player
+SPAWN 9 0
+
+# Masks
+START_MASK MASK_STONE
+MASK_USES 2
+
+NEXT_LEVEL levels/level01.txt
+
+TEXT 2 2 "This time, you can safely press numbered keys!"
+TEXT 2 3 "Press 2 to equip the WIND MASK!" 
+TEXT 2 4 "With the WIND MASK, you can traverse chasms safely!"
+
