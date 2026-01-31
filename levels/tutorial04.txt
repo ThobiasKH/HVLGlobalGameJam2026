@@ -29,6 +29,6 @@ SPAWN 1 1
 START_MASK MASK_STONE
 MASK_USES 1
 
-NEXT_LEVEL levels/tutorials/tutorial06.txt
+NEXT_LEVEL levels/tutorial05.txt
 
 TEXT 1 5 "Choices bear weight."

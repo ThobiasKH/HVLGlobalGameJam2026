@@ -32,4 +32,4 @@ MASK_USES 8
 
 NEXT_LEVEL levels/level03.txt
 
-TEXT 1 8 "You agreed, though you may have forgotten."
+TEXT 2 8 "You agreed, though you may have forgotten."

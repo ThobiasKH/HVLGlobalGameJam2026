@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <cmath>
 #include <fstream>
+#include <unordered_set>
 
 #include "config.h"
 #include "game/player.h"
@@ -11,6 +12,7 @@
 #include "game/ui.h"
 #include "game/level.h"
 #include "game/sound.h"
+#include "game/save.h"
 
 #include <algorithm>
 
@@ -18,8 +20,17 @@ enum class GameState {
     MENU,
     PLAYING,
     PAUSED,
+    LEVEL_SELECT,
     EXIT
 };
+
+struct LevelEntry {
+    std::string name;      
+    std::string path;      
+    bool known;
+};
+
+static std::vector<LevelEntry> gLevelList;
 
 struct FloatingQuote {
     std::string text;
@@ -42,6 +53,49 @@ std::vector<std::string> LoadLines(const char* path) {
     }
     return lines;
 }
+
+static float levelScroll = 0.0f;
+
+// ------------------------------------------------------------
+// Death shenanigans 
+// ------------------------------------------------------------
+
+enum class DeathReason {
+    NONE,
+    PIT,
+    FLAME,
+    MASK_CONSUMED
+};
+
+struct DeathFlash {
+    bool active = false;
+    int gx = 0;
+    int gy = 0;
+    float timer = 0.0f;
+    DeathReason reason = DeathReason::NONE;
+};
+
+constexpr float DEATH_FLASH_DURATION = 0.5f;
+
+const char* DeathText(DeathReason reason) {
+
+    const char* msg = "YOU DIED";
+
+    switch (reason) {
+        case DeathReason::PIT:
+            msg = "CLAIMED BY VOID";
+            break;
+        case DeathReason::FLAME:
+            msg = "CONSUMED BY FLAMES";
+            break;
+        case DeathReason::MASK_CONSUMED:
+            msg = "YOU CAME APART";
+            break;
+        default:
+            break;
+    }
+    return msg;
+} 
 
 // ------------------------------------------------------------
 // Helpers
@@ -218,46 +272,133 @@ bool GetHeldDirection(int& dx, int& dy) {
     return false;
 }
 
-// ------------------------------------------------------------
-// Death shenanigans 
-// ------------------------------------------------------------
+void LoadLevelList() {
+    gLevelList.clear();
 
-enum class DeathReason {
-    NONE,
-    PIT,
-    FLAME,
-    MASK_CONSUMED
-};
+    // Load remembered set
+    auto remembered = LoadRememberedLevels();
+    std::unordered_set<std::string> known;
+    for (auto& p : remembered)
+        known.insert(p);
 
-struct DeathFlash {
-    bool active = false;
-    int gx = 0;
-    int gy = 0;
-    float timer = 0.0f;
-    DeathReason reason = DeathReason::NONE;
-};
+    // Scan all levels on disk
+    for (const auto& entry : std::filesystem::directory_iterator("levels")) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".txt") continue;
 
-constexpr float DEATH_FLASH_DURATION = 0.5f;
+        LevelEntry lvl;
+        lvl.path = entry.path().string();
 
-const char* DeathText(DeathReason reason) {
+        if (known.contains(lvl.path)) {
+            lvl.name = entry.path().stem().string();
+            lvl.known = true;
+        } else {
+            lvl.name = "???";
+            lvl.known = false;
+        }
 
-    const char* msg = "YOU DIED";
-
-    switch (reason) {
-        case DeathReason::PIT:
-            msg = "CLAIMED BY VOID";
-            break;
-        case DeathReason::FLAME:
-            msg = "CONSUMED BY FLAMES";
-            break;
-        case DeathReason::MASK_CONSUMED:
-            msg = "YOU CAME APART";
-            break;
-        default:
-            break;
+        gLevelList.push_back(lvl);
     }
-    return msg;
-} 
+
+    std::sort(gLevelList.begin(), gLevelList.end(),
+        [](const LevelEntry& a, const LevelEntry& b) {
+            return a.path < b.path;
+        });
+}
+
+void DrawLevelSelect(GameState& gameState,
+                     Level& level,
+                     View& view,
+                     Player& player,
+                     Hotbar& hotbar,
+                     RenderTexture2D& target,
+                     bool& isDead,
+                     float& deathTimer,
+                     DeathFlash& deathFlash,
+                     bool& movementLocked)
+{
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.7f));
+
+    const char* title = "SELECT A MEMORY";
+
+    int titleSize = GetScreenWidth() / 12;
+
+    float wheel = GetMouseWheelMove();
+    levelScroll -= wheel * 40.0f;
+
+    float bw = GetScreenWidth() * 0.6f;
+    float bh = 48;
+
+    float listHeight = gLevelList.size() * (bh + 12);
+    float viewHeight = GetScreenHeight() - SCREEN_HEIGHT / 3.0f; 
+
+    float maxScroll = std::max(0.0f, listHeight - viewHeight);
+
+    levelScroll = std::clamp(levelScroll, 0.0f, maxScroll);
+
+    float bx = (GetScreenWidth() - bw) / 2;
+    float startY = SCREEN_HEIGHT/ 3.0f - levelScroll;
+
+
+    for (size_t i = 0; i < gLevelList.size(); i++) {
+        Rectangle r = {
+            bx,
+            startY + i * (bh + 12),
+            bw,
+            bh
+        };
+
+        if (r.y + r.height < 0 || r.y > GetScreenHeight())
+            continue; // cheap clipping
+        if (!gLevelList[i].known) {
+            DrawRectangleRec(r, Color{20, 20, 20, 180});
+            DrawText("???", r.x + 20, r.y + 12, 24, DARKGRAY);
+            continue;
+        }
+
+        if (DrawMenuButton(gLevelList[i].name.c_str(), r)) {
+            gameState = GameState::PLAYING;
+
+            level.LoadFromFile(gLevelList[i].path);
+            InitializeFromLevel(&level, &view, &player, &hotbar);
+            PlayerSyncVisual(&player, view);
+
+            isDead = false;
+            deathTimer = 0.0f;
+            deathFlash.active = false;
+            movementLocked = true;
+
+            SoundRestartMusic();
+
+            UnloadRenderTexture(target);
+            target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+            UINoiseOnResize();
+        }
+
+    }
+
+    DrawRectangle(0, 0, GetScreenWidth(), SCREEN_HEIGHT / 3.0f, Fade(BLACK, 0.7f));
+
+    DrawText(
+        title,
+        (GetScreenWidth() - MeasureText(title, titleSize)) / 2,
+        60,
+        titleSize,
+        RED
+    );
+
+    // ESC back
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        gameState = GameState::MENU;
+    }
+
+    EndDrawing();
+}
+
+
 
 // ------------------------------------------------------------
 // ALL HAIL THE GREAT RESET 
@@ -323,6 +464,7 @@ int main() {
 
     LoadTileTextures();
     InitMaskAnimations();
+    SaveInit();
 
     Hotbar hotbar;
     InitializeFromLevel(&level, &view, &player, &hotbar);
@@ -387,6 +529,20 @@ int main() {
             }
         }
 
+        if (gameState == GameState::LEVEL_SELECT) {
+            DrawLevelSelect(gameState,
+                    level,
+                    view,
+                    player,
+                    hotbar,
+                    target,
+                    isDead,
+                    deathTimer,
+                    deathFlash,
+                     movementLocked);
+            continue;
+        }
+
 
         if (gameState == GameState::PAUSED) {
             BeginDrawing();
@@ -419,6 +575,7 @@ int main() {
             if (restart) {
                 gameState = GameState::PLAYING;
                 level.LoadFromFile(level.currentPath);
+                SaveRememberLevel(level.currentPath);
                 InitializeFromLevel(&level, &view, &player, &hotbar);
 
                 isDead = false;
@@ -473,7 +630,8 @@ int main() {
             float by = GetScreenHeight() / 2;
 
             Rectangle startBtn = { bx, by, bw, bh };
-            Rectangle exitBtn  = { bx, by + bh + 20, bw, bh };
+            Rectangle levelSelectBtn = {bx, by + bh + 20, bw, bh};
+            Rectangle exitBtn  = { bx, by + 2*(bh + 20), bw, bh };
 
             if (DrawMenuButton("START", startBtn)) {
                 gameState = GameState::PLAYING;
@@ -483,6 +641,11 @@ int main() {
                         isDead, deathTimer, deathFlash,
                         movementLocked
                         );
+            }
+
+            if (DrawMenuButton("LEVEL SELECT", levelSelectBtn)) {
+                LoadLevelList();
+                gameState = GameState::LEVEL_SELECT;
             }
 
             if (DrawMenuButton("EXIT", exitBtn)) {
@@ -523,6 +686,7 @@ int main() {
             deathTimer += dt;
             if (deathTimer >= DEATH_SCREEN_DURATION) {
                 level.LoadFromFile(level.currentPath);
+                SaveRememberLevel(level.currentPath);
                 InitializeFromLevel(&level, &view, &player, &hotbar);
 
                 isDead = false;
@@ -605,6 +769,7 @@ int main() {
                 if (t == TILE_GOAL && LevelHasNext(level)) {
                     if (level.LoadFromFile(level.nextLevelPath)) {
                         InitializeFromLevel(&level, &view, &player, &hotbar);
+                        SaveRememberLevel(level.currentPath);
                     }
                 }
                 else if (t == TILE_PRESSUREPLATE && player.mask != MASK_WIND) {

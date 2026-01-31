@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++20 -Wall -Wextra -Isrc
 LIBS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
-SRC = src/main.cpp src/game/player.cpp src/game/world.cpp src/game/view.cpp src/game/ui.cpp src/game/level.cpp src/game/sound.cpp
+SRC = src/main.cpp src/game/player.cpp src/game/world.cpp src/game/view.cpp src/game/ui.cpp src/game/level.cpp src/game/sound.cpp src/game/save.cpp
 OUT = game
 
 all:

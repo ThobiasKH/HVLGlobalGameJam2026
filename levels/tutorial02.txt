@@ -24,6 +24,6 @@ SPAWN 9 5
 START_MASK MASK_STONE
 MASK_USES 1
 
-NEXT_LEVEL levels/tutorials/tutorial03.txt
+NEXT_LEVEL levels/tutorial03.txt
 
-TEXT 1 2 "The stone can endure the flames."
+TEXT 1 2 "As stone, you can endure the flames."

@@ -14,6 +14,7 @@ END
 WORLD
 wOOOOOOw
 wOOOOOOw
+wOOOOOOw
 w^^^^^^w
 wOOOwwOw
 w.O^.Gww
@@ -24,13 +25,13 @@ wwwwwwww
 END
 
 # Player
-SPAWN 1 4
+SPAWN 1 5
 
 # Masks
 START_MASK MASK_STONE
 MASK_USES 6
 
-TEXT 1 0 "You haven't the faintest recollection..."
-TEXT 1 1 "...of what having a face feels like."
+TEXT 2 1 "You haven't the faintest recollection,"
+TEXT 2 2 "of what BEING feels like."
 
 NEXT_LEVEL levels/level03.txt
