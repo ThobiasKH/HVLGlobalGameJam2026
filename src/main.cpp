@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <raylib.h>
 #include <cmath>
+#include <fstream>
 
 #include "config.h"
 #include "game/player.h"
@@ -13,9 +14,123 @@
 
 #include <algorithm>
 
+enum class GameState {
+    MENU,
+    PLAYING,
+    EXIT
+};
+
+struct FloatingQuote {
+    std::string text;
+    Vector2 pos;
+    Vector2 vel;
+    float rotation;
+    float alpha;
+};
+
+static std::vector<FloatingQuote> gMenuQuotes;
+
+std::vector<std::string> LoadLines(const char* path) {
+    std::vector<std::string> lines;
+    std::ifstream f(path);
+    std::string line;
+
+    while (std::getline(f, line)) {
+        if (!line.empty())
+            lines.push_back(line);
+    }
+    return lines;
+}
+
 // ------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------
+
+void DrawMenuFloatingText(float dt) {
+    for (auto& q : gMenuQuotes) {
+        q.pos.x += q.vel.x * dt * 20.0f;
+        q.pos.y += q.vel.y * dt * 20.0f;
+
+        // Soft wrap
+        if (q.pos.x < -200) q.pos.x = GetScreenWidth() + 200;
+        if (q.pos.x > GetScreenWidth() + 200) q.pos.x = -200;
+        if (q.pos.y < -100) q.pos.y = GetScreenHeight() + 100;
+        if (q.pos.y > GetScreenHeight() + 100) q.pos.y = -100;
+
+        // Subtle alpha flicker
+        float flicker = GetRandomValue(-5, 5) / 1000.0f;
+        q.alpha = std::clamp(q.alpha + flicker, 0.2f, 0.9f);
+
+        Color c = Color{200, 30, 30, (unsigned char)(255 * q.alpha)};
+
+        DrawTextPro(
+            GetFontDefault(),
+            q.text.c_str(),
+            q.pos,
+            Vector2{0, 0},
+            q.rotation,
+            20,
+            1,
+            c
+        );
+    }
+}
+
+void InitMenuQuotes() {
+    auto stone = LoadLines("assets/text/stone.txt");
+    auto wind  = LoadLines("assets/text/wind.txt");
+
+    std::vector<std::string> all;
+    all.insert(all.end(), stone.begin(), stone.end());
+    all.insert(all.end(), wind.begin(), wind.end());
+
+    gMenuQuotes.clear();
+
+    for (int i = 0; i < 50; i++) {
+        FloatingQuote q;
+        q.text = all[GetRandomValue(0, all.size() - 1)];
+
+        q.pos = {
+            (float)GetRandomValue(0, GetScreenWidth()),
+            (float)GetRandomValue(0, GetScreenHeight())
+        };
+
+        q.vel = {
+            GetRandomValue(-10, 10) / 10.0f,
+            GetRandomValue(-10, 10) / 10.0f
+        };
+
+        q.rotation = GetRandomValue(-25, 25);
+        q.alpha = GetRandomValue(30, 90) / 100.0f;
+
+        gMenuQuotes.push_back(q);
+    }
+}
+
+
+bool DrawMenuButton(const char* text, Rectangle rect) {
+    Vector2 mouse = GetMousePosition();
+    bool hover = CheckCollisionPointRec(mouse, rect);
+
+    Color bg = hover ? Color{120, 20, 20, 220} : Color{30, 30, 30, 200};
+    Color fg = hover ? RAYWHITE : GRAY;
+
+    DrawRectangleRec(rect, bg);
+    DrawRectangleLinesEx(rect, hover ? 3 : 1, RED);
+
+    int fontSize = rect.height * 0.5f;
+    int tw = MeasureText(text, fontSize);
+
+    DrawText(
+        text,
+        rect.x + (rect.width - tw) / 2,
+        rect.y + (rect.height - fontSize) / 2,
+        fontSize,
+        fg
+    );
+
+    return hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+}
 
 void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
     view->gridW = level->world.width;
@@ -101,6 +216,7 @@ const char* DeathText(DeathReason reason) {
 
 // ------------------------------------------------------------
 
+
 static MaskType lastMask = MASK_NONE;
 
 int main() {
@@ -111,7 +227,7 @@ int main() {
     Player player;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + UI_HEIGHT,
-               "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
+            "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
     SetTargetFPS(TARGET_FPS);
 
     LoadTileTextures();
@@ -122,9 +238,9 @@ int main() {
     PlayerSyncVisual(&player, view);
 
     RenderTexture2D target = LoadRenderTexture(
-        GetScreenWidth(),
-        GetScreenHeight()
-    );
+            GetScreenWidth(),
+            GetScreenHeight()
+            );
 
     Shader crtShader = LoadShader(0, "assets/shaders/crt.fs");
 
@@ -154,6 +270,8 @@ int main() {
 
 
     SoundInit();
+    GameState gameState = GameState::MENU;
+    InitMenuQuotes();
 
     // --------------------------------------------------------
     // Game loop
@@ -163,6 +281,58 @@ int main() {
         SoundUpdate();
         float dt = GetFrameTime();
 
+
+        if (gameState == GameState::MENU) {
+            ShowCursor();
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            DrawMenuFloatingText(dt);
+
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.6f));
+
+            const char* title = "You're mome gay";
+            int titleSize = GetScreenWidth() / 10;
+            int titleWidth = MeasureText(title, titleSize);
+
+            DrawText(
+                    title,
+                    (GetScreenWidth() - titleWidth) / 2,
+                    GetScreenHeight() / 6,
+                    titleSize,
+                    RED
+                    );
+
+            float bw = GetScreenWidth() / 3;
+            float bh = 60;
+            float bx = (GetScreenWidth() - bw) / 2;
+            float by = GetScreenHeight() / 2;
+
+            Rectangle startBtn = { bx, by, bw, bh };
+            Rectangle exitBtn  = { bx, by + bh + 20, bw, bh };
+
+            if (DrawMenuButton("START", startBtn)) {
+                gameState = GameState::PLAYING;
+
+                level.LoadFromFile(START_LEVEL);
+                InitializeFromLevel(&level, &view, &player, &hotbar);
+                PlayerSyncVisual(&player, view);
+
+                SoundPlayMusic();
+            }
+
+            if (DrawMenuButton("EXIT", exitBtn)) {
+                gameState = GameState::EXIT;
+            }
+
+            EndDrawing();
+            continue; 
+        }
+
+        if (gameState == GameState::EXIT) break;
+
+        HideCursor();
+
         // --- Resize ---
         if (IsWindowResized()) {
             view.Recalculate();
@@ -170,9 +340,9 @@ int main() {
 
             UnloadRenderTexture(target);
             target = LoadRenderTexture(
-                GetScreenWidth(),
-                GetScreenHeight()
-            );
+                    GetScreenWidth(),
+                    GetScreenHeight()
+                    );
 
             UINoiseOnResize();
         }
