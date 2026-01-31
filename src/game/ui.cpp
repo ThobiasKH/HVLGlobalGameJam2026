@@ -254,11 +254,11 @@ void UINoiseDraw() {
         unsigned char g = (unsigned char)GetRandomValue(0, 60);
         unsigned char b = (unsigned char)GetRandomValue(0, 40);
 
-        unsigned char a = (unsigned char)GetRandomValue(80, 160);
+        unsigned char a = (unsigned char)GetRandomValue(70, 130);
 
         Color c = { r, g, b, a };
 
-        float pulse = 1.0f + sinf(t.shakePhase * 0.7f) * 0.1f;
+        float pulse = 0.75f + sinf(t.shakePhase * 0.7f) * 0.1f;
         
         float shake = 3.0f + 10.0f * t.rage;
 

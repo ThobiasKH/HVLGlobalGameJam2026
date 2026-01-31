@@ -34,7 +34,7 @@ void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
 
 int main() {
     Level level;
-    level.LoadFromFile("levels/tutorials/tutorial01.txt");
+    level.LoadFromFile("levels/level01.txt");
 
     View view;
     Player player;
