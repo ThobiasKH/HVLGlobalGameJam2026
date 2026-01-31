@@ -2,7 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <unordered_map>
 
 static MaskType ParseMask(const std::string& s) {
     if (s == "MASK_WIND") return MASK_WIND;

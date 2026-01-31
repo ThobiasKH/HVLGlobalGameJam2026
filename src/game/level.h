@@ -3,6 +3,7 @@
 #include <string>
 #include "mask.h" 
 #include "world.h"
+#include <unordered_map>
 
 struct LevelText {
     int gx;
