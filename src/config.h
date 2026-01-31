@@ -31,4 +31,4 @@ constexpr float JITTER_STRENGTH  = 0.6f;   // subpixel wobble (0.2–1.0)
 constexpr float JITTER_SPEED     = 2.4f;  // higher = shakier
 
 // constexpr const char* START_LEVEL = "levels/tutorials/tutorial01.txt";
-constexpr const char* START_LEVEL = "levels/level01.txt";
+constexpr const char* START_LEVEL = "levels/tutorials/tutorial01.txt";

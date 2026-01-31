@@ -51,6 +51,8 @@ void PlayerTryMove(
     if (p->moving) return;
     if (p->mask == MASK_NONE) return;
 
+    SoundOnMoveStart(p->mask);
+
     int nx = p->gx + dx;
     int ny = p->gy + dy;
 
@@ -87,6 +89,7 @@ void PlayerUpdate(Player* p, float dt, const World& world, const View& view) {
 
     if (t >= 1.0f) {
         t = 1.0f;
+        SoundOnMoveStop(p->mask);
         p->moving = false;
         p->visualPos = p->targetPos;
 

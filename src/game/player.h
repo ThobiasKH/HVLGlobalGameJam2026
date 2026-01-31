@@ -5,6 +5,7 @@
 #include "world.h"
 #include "view.h"
 #include "mask.h"
+#include "sound.h"
 
 enum Direction {
     DIR_UP,
