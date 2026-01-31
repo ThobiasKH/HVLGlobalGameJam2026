@@ -296,7 +296,12 @@ int main() {
     Player player;
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + UI_HEIGHT,
-            "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
+            "Highkey The Best Game You've Every Played");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_UNDECORATED);
+    SetWindowMinSize(SCREEN_WIDTH / 2, (SCREEN_HEIGHT + UI_HEIGHT) / 2);
+    MaximizeWindow();
+
     SetTargetFPS(TARGET_FPS);
     SetExitKey(KEY_NULL);
 
