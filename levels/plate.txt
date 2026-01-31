@@ -1,0 +1,30 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+P TILE_PRESSUREPLATE
+D TILE_DOOR
+END
+
+# World
+WORLD
+wwwwwwwwww
+w...P....w
+w........w
+w........w
+wODDDDwwww
+w.......Gw
+wwwwwwwwww
+END
+
+# Player
+SPAWN 1 1
+
+# Masks
+START_MASK MASK_WIND
+MASK_USES 100
+
+# NEXT_LEVEL levels/level02.txt

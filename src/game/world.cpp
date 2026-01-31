@@ -9,6 +9,18 @@ bool World::InBounds(int x, int y) const {
     return x >= 0 && y >= 0 && x < width && y < height;
 }
 
+bool World::ActivatePlate(int x, int y) {
+    Tile t = Get(x,y); 
+    if (t != TILE_PRESSUREPLATE || !InBounds(x,y)) {
+        // this won't ever happen, but whatever
+        return false;
+    }
+    int idx = y * width + x;
+    t = tiles[idx] = TILE_PRESSUREPLATE_USED;
+    doorsOpen = !doorsOpen;
+    return true;
+}
+
 bool World::IsWalkable(int x, int y, MaskType mask) const {
     if (!InBounds(x, y)) return false;
 
@@ -20,6 +32,9 @@ bool World::IsWalkable(int x, int y, MaskType mask) const {
 
         case TILE_GLASS:
             return mask != MASK_STONE; // stone breaks glass later
+        
+        case TILE_DOOR: 
+            return doorsOpen;
 
         default:
             return true;
@@ -238,6 +253,42 @@ void World::Draw(const View& view) const {
                         view.tileSize,
                         view.tileSize,
                         BLACK
+                    );
+                } break;
+
+                case TILE_PRESSUREPLATE: {
+                    Vector2 pos = view.GridToWorld(x, y);
+
+                    DrawRectangle(
+                        (int)pos.x,
+                        (int)pos.y,
+                        view.tileSize,
+                        view.tileSize,
+                        GREEN
+                    );
+                } break;
+
+                case TILE_PRESSUREPLATE_USED: {
+                    Vector2 pos = view.GridToWorld(x, y);
+
+                    DrawRectangle(
+                        (int)pos.x,
+                        (int)pos.y,
+                        view.tileSize,
+                        view.tileSize,
+                        RED
+                    );
+                } break;
+
+                case TILE_DOOR: {
+                    Vector2 pos = view.GridToWorld(x, y);
+
+                    DrawRectangle(
+                        (int)pos.x,
+                        (int)pos.y,
+                        view.tileSize,
+                        view.tileSize,
+                        doorsOpen ? WHITE : ORANGE
                     );
                 } break;
 

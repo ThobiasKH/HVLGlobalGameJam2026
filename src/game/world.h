@@ -11,7 +11,10 @@ enum Tile {
     TILE_FLAME,
     TILE_PIT,
     TILE_GOAL,
-    TILE_GLASS
+    TILE_GLASS, 
+    TILE_PRESSUREPLATE,
+    TILE_PRESSUREPLATE_USED,
+    TILE_DOOR
 };
 
 struct TileTextures {
@@ -37,12 +40,15 @@ struct World {
     int height;
     std::vector<Tile> tiles;
 
+    bool doorsOpen; 
+
     Tile Get(int x, int y) const;
     bool InBounds(int x, int y) const;
     bool IsDeadly(int x, int y, MaskType mask) const;
     bool IsWalkable(int x, int y, MaskType mask) const;
     void Draw(const View& view) const;
     void DrawOutlines(const View& view) const;
+    bool ActivatePlate(int x, int y);
 };
 
 bool IsWalkable(Tile tile);

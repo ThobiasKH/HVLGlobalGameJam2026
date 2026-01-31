@@ -40,12 +40,15 @@ bool Level::LoadFromFile(const std::string& path) {
             std::string tileName;
             ss >> c >> tileName;
 
-            if (tileName == "TILE_EMPTY")  legend[c] = TILE_EMPTY;
-            if (tileName == "TILE_WALL")   legend[c] = TILE_WALL;
-            if (tileName == "TILE_FLAME")  legend[c] = TILE_FLAME;
-            if (tileName == "TILE_PIT")    legend[c] = TILE_PIT;
-            if (tileName == "TILE_GOAL")   legend[c] = TILE_GOAL;
-            if (tileName == "TILE_GLASS")  legend[c] = TILE_GLASS;
+            if (tileName == "TILE_EMPTY")              legend[c] = TILE_EMPTY;
+            if (tileName == "TILE_WALL")               legend[c] = TILE_WALL;
+            if (tileName == "TILE_FLAME")              legend[c] = TILE_FLAME;
+            if (tileName == "TILE_PIT")                legend[c] = TILE_PIT;
+            if (tileName == "TILE_GOAL")               legend[c] = TILE_GOAL;
+            if (tileName == "TILE_GLASS")              legend[c] = TILE_GLASS;
+            if (tileName == "TILE_PRESSUREPLATE")      legend[c] = TILE_PRESSUREPLATE;
+            if (tileName == "TILE_PRESSUREPLATE_USED") legend[c] = TILE_PRESSUREPLATE_USED;
+            if (tileName == "TILE_DOOR")               legend[c] = TILE_DOOR;
         }
         else if (section == WORLD) {
             worldLines.push_back(line);
@@ -117,6 +120,8 @@ bool Level::LoadFromFile(const std::string& path) {
                 legend.count(c) ? legend[c] : TILE_EMPTY;
         }
     }
+
+    world.doorsOpen = false;
 
     return true;
 }

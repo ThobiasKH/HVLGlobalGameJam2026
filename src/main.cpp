@@ -128,13 +128,16 @@ int main() {
                 deathTimer = 0.0f;
             }
 
-            // --- Goal handling ---
+            // --- Some things to check w.r.t tiles and such ---
             if (!player.moving) {
                 Tile t = level.world.Get(player.gx, player.gy);
                 if (t == TILE_GOAL && LevelHasNext(level)) {
                     if (level.LoadFromFile(level.nextLevelPath)) {
                         InitializeFromLevel(&level, &view, &player, &hotbar);
                     }
+                }
+                else if (t == TILE_PRESSUREPLATE && player.mask != MASK_WIND) {
+                    level.world.ActivatePlate(player.gx, player.gy);
                 }
             }
         }
