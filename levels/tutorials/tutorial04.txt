@@ -27,5 +27,5 @@ MASK_USES 100
 
 NEXT_LEVEL levels/tutorials/tutorial05.txt
 
-TEXT 2 2 "The HEALTH attribute tells you how many
+TEXT 2 2 "The DEATH attribute tells you how many
 TEXT 2 3 mask swaps you have left until you DIE!"

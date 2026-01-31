@@ -35,6 +35,29 @@ void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
     }
 }
 
+bool GetHeldDirection(int& dx, int& dy) {
+    dx = dy = 0;
+
+    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
+        dy = -1;
+        return true;
+    }
+    if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) {
+        dy = 1;
+        return true;
+    }
+    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+        dx = -1;
+        return true;
+    }
+    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+        dx = 1;
+        return true;
+    }
+
+    return false;
+}
+
 // ------------------------------------------------------------
 // Death shenanigans 
 // ------------------------------------------------------------
@@ -188,10 +211,10 @@ int main() {
             }
 
             if (!player.moving) {
-                if (IsKeyPressed(KEY_UP)    || IsKeyPressed(KEY_W)) PlayerTryMove(&player, 0, -1, level.world, view);
-                if (IsKeyPressed(KEY_DOWN)  || IsKeyPressed(KEY_S)) PlayerTryMove(&player, 0,  1, level.world, view);
-                if (IsKeyPressed(KEY_LEFT)  || IsKeyPressed(KEY_A)) PlayerTryMove(&player, -1, 0, level.world, view);
-                if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) PlayerTryMove(&player,  1, 0, level.world, view);
+                int dx, dy;
+                if (GetHeldDirection(dx, dy)) {
+                    PlayerTryMove(&player, dx, dy, level.world, view);
+                }
             }
 
             PlayerUpdate(&player, dt, level.world, view);
