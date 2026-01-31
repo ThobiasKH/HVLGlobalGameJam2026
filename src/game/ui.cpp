@@ -42,15 +42,6 @@ void HotbarUpdate(Hotbar* hb, float dt, int* maskUses, bool playerMoving) {
         if (hb->selected != 1) change = 1;
         hb->selected = 1; 
     }
-    if (IsKeyPressed(KEY_THREE)) {
-        if (hb->selected != 2) change = 1;
-        hb->selected = 2; 
-    }
-    if (IsKeyPressed(KEY_FOUR))  {
-        if (hb->selected != 3) change = 1;
-        hb->selected = 3; 
-    }
-
     if (change) {
         *maskUses -= 1; 
         hb->animTimer = 0.0f;
@@ -76,7 +67,7 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
 
     int frame = (int)(hb->animTimer * MASK_FPS) % TOTAL_FRAMES;
 
-    DrawText(TextFormat("DEATH: %d", maskUses), (float)(startX + 0.65 * slotSize), (float)(barY - UI_HEIGHT * 0.014f), 
+    DrawText(TextFormat("COHERENCE: %d", maskUses), (float)(startX + 0.45 * slotSize), (float)(barY - UI_HEIGHT * 0.014f), 
             slotSize / 6, maskUses > 1 ? RAYWHITE : RED);
 
     for (int i = 0; i < HOTBAR_SLOTS; i++) {
@@ -123,7 +114,8 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
         );
 
         if (i != hb->selected) 
-            DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 2, {255,255,255,128});
+            DrawText(TextFormat("%d", i + 1), (float)x + slotSize * (
+                        i == 0 ? 0.325f : 0.2f), (float)y, slotSize * 1.25f, {255,255,255,168});
     }
 }
 

@@ -47,6 +47,12 @@ std::vector<std::string> LoadLines(const char* path) {
 // Helpers
 // ------------------------------------------------------------
 
+bool AnyMovementKeyDown() {
+    return IsKeyDown(KEY_UP) || IsKeyDown(KEY_W) ||
+           IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S) ||
+           IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A) ||
+           IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D);
+}
 
 void DrawMenuFloatingText(float dt) {
     for (auto& q : gMenuQuotes) {
@@ -88,7 +94,7 @@ void InitMenuQuotes() {
 
     gMenuQuotes.clear();
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 67; i++) {
         FloatingQuote q;
         q.text = all[GetRandomValue(0, all.size() - 1)];
 
@@ -134,7 +140,7 @@ bool DrawMenuButton(const char* text, Rectangle rect) {
     return hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
-void DrawPauseMenu(bool& resumeClicked, bool& menuClicked) {
+void DrawPauseMenu(bool& resumeClicked, bool& restartClicked, bool& menuClicked) {
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.6f));
 
     const char* title = "PAUSED";
@@ -154,11 +160,16 @@ void DrawPauseMenu(bool& resumeClicked, bool& menuClicked) {
     float bx = (GetScreenWidth() - bw) / 2;
     float by = GetScreenHeight() / 2;
 
-    Rectangle resumeBtn = { bx, by, bw, bh };
-    Rectangle menuBtn   = { bx, by + bh + 20, bw, bh };
+    Rectangle resumeBtn  = { bx, by, bw, bh };
+    Rectangle resetBtn   = { bx, by + bh + 20, bw, bh };
+    Rectangle menuBtn    = { bx, by + 2*(bh + 20), bw, bh };
 
     if (DrawMenuButton("RESUME", resumeBtn)) {
         resumeClicked = true;
+    }
+
+    if (DrawMenuButton("RESTART LEVEL", resetBtn)) {
+        restartClicked = true;
     }
 
     if (DrawMenuButton("MAIN MENU", menuBtn)) {
@@ -234,13 +245,13 @@ const char* DeathText(DeathReason reason) {
 
     switch (reason) {
         case DeathReason::PIT:
-            msg = "CONSUMED BY VOID";
+            msg = "CLAIMED BY VOID";
             break;
         case DeathReason::FLAME:
             msg = "CONSUMED BY FLAMES";
             break;
         case DeathReason::MASK_CONSUMED:
-            msg = "CONSUMED BY MASKS";
+            msg = "YOU CAME APART";
             break;
         default:
             break;
@@ -260,7 +271,8 @@ void ResetGameplayState(
     RenderTexture2D& target,
     bool& isDead,
     float& deathTimer,
-    DeathFlash& deathFlash
+    DeathFlash& deathFlash, 
+    bool& movementLocked
 ) {
     level.LoadFromFile(START_LEVEL);
     InitializeFromLevel(&level, &view, &player, &hotbar);
@@ -269,6 +281,10 @@ void ResetGameplayState(
     isDead = false;
     deathTimer = 0.0f;
     deathFlash.active = false;
+    movementLocked = true;
+
+    player.moving = false;
+    player.slideDir = { 0, 0 };
 
     SoundStopMovement();
     SoundRestartMusic();
@@ -338,6 +354,7 @@ int main() {
     SetShaderValue(crtShader, jitterSpdLoc, &JITTER_SPEED, SHADER_UNIFORM_FLOAT);
 
     bool isDead = false;
+    bool movementLocked = false;
     float deathTimer = 0.0f;
     DeathFlash deathFlash;
 
@@ -387,15 +404,30 @@ int main() {
             EndShaderMode();
 
             bool resume = false;
+            bool restart = false;
             bool toMenu = false;
 
-            DrawPauseMenu(resume, toMenu);
+            DrawPauseMenu(resume, restart, toMenu);
 
             EndDrawing();
 
             if (resume) {
                 gameState = GameState::PLAYING;
                 DisableCursor();
+            }
+
+            if (restart) {
+                gameState = GameState::PLAYING;
+                level.LoadFromFile(level.currentPath);
+                InitializeFromLevel(&level, &view, &player, &hotbar);
+
+                isDead = false;
+                movementLocked = true;
+                deathFlash.active = false;
+
+                player.moving = false;
+                player.slideDir = { 0, 0 };
+                SoundRestartMusic();
             }
 
             if (toMenu) {
@@ -448,7 +480,8 @@ int main() {
 
                 ResetGameplayState(
                         level, view, player, hotbar, target,
-                        isDead, deathTimer, deathFlash
+                        isDead, deathTimer, deathFlash,
+                        movementLocked
                         );
             }
 
@@ -493,7 +526,11 @@ int main() {
                 InitializeFromLevel(&level, &view, &player, &hotbar);
 
                 isDead = false;
+                movementLocked = true;
                 deathFlash.active = false;
+
+                player.moving = false;
+                player.slideDir = { 0, 0 };
                 SoundRestartMusic();
             }
         }
@@ -506,12 +543,19 @@ int main() {
             HotbarUpdate(&hotbar, dt, &(player.maskUses), player.moving);
             player.mask = HotbarGetSelectedMask(&hotbar);
 
+
+            if (movementLocked) {
+                if (!AnyMovementKeyDown()) {
+                    movementLocked = false;
+                }
+            }
+
             if (player.mask != lastMask) {
                 SoundOnMaskSwitch(player.mask);
                 lastMask = player.mask;
             }
 
-            if (!player.moving) {
+            if (!player.moving && !movementLocked) {
                 int dx, dy;
                 if (GetHeldDirection(dx, dy)) {
                     PlayerTryMove(&player, dx, dy, level.world, view);
@@ -547,6 +591,10 @@ int main() {
 
                 isDead = true;
                 deathTimer = 0.0f;
+                movementLocked = true;
+
+                player.moving = false;
+                player.slideDir = { 0, 0 };
 
 
                 SoundOnDeath();

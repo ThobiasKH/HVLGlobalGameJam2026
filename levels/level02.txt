@@ -5,21 +5,32 @@ w TILE_WALL
 ^ TILE_FLAME
 O TILE_PIT
 G TILE_GOAL
+P TILE_PRESSUREPLATE
+D TILE_DOOR_CLOSED
+d TILE_DOOR_OPEN
 END
 
 # World
 WORLD
-wwwwwwwwww
-w........w
-wOO^O.O..w
-w.O.OOO..w
-w.OOOO...w
-wwwwwwwwww
+wOOOOOOw
+wOOOOOOw
+w^^^^^^w
+wOOOwwOw
+w.O^.Gww
+w.dOOOPw
+wwwO..ww
+wP..OOD^
+wwwwwwww
 END
 
 # Player
-SPAWN 1 1
+SPAWN 1 4
 
 # Masks
-START_MASK MASK_WIND
-MASK_USES 5
+START_MASK MASK_STONE
+MASK_USES 6
+
+TEXT 1 0 "You haven't the faintest recollection..."
+TEXT 1 1 "...of what having a face feels like."
+
+NEXT_LEVEL levels/level03.txt

@@ -31,5 +31,5 @@ MASK_USES 2
 
 NEXT_LEVEL levels/level01.txt
 
-TEXT 1 5 "You float."
-TEXT 1 6 "Your imprint might not make an impression."
+TEXT 1 5 "When you float..."
+TEXT 1 6 "...Your imprint might not make an impression."

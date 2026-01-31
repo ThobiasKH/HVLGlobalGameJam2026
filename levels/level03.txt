@@ -1,0 +1,35 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+P TILE_PRESSUREPLATE
+D TILE_DOOR_CLOSED
+d TILE_DOOR_OPEN
+END
+
+# World
+WORLD
+wwwwwwwwwww
+w.^O.w^.Gww
+wOPO^Odw..w
+wOwP.dPdw.w
+wOOOdOdw^dd
+wdOwO^^.OOP
+w^OO^....Pw
+wOOOOOOOO^w
+wOOOOOOOOOw
+END
+
+# Player
+SPAWN 1 1
+
+# Masks
+START_MASK MASK_WIND
+MASK_USES 8
+
+NEXT_LEVEL levels/level03.txt
+
+TEXT 1 8 "You agreed, though you may have forgotten."
