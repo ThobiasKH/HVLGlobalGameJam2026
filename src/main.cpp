@@ -17,6 +17,7 @@
 enum class GameState {
     MENU,
     PLAYING,
+    PAUSED,
     EXIT
 };
 
@@ -45,6 +46,7 @@ std::vector<std::string> LoadLines(const char* path) {
 // ------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------
+
 
 void DrawMenuFloatingText(float dt) {
     for (auto& q : gMenuQuotes) {
@@ -132,6 +134,38 @@ bool DrawMenuButton(const char* text, Rectangle rect) {
     return hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
+void DrawPauseMenu(bool& resumeClicked, bool& menuClicked) {
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.6f));
+
+    const char* title = "PAUSED";
+    int titleSize = GetScreenWidth() / 12;
+    int titleWidth = MeasureText(title, titleSize);
+
+    DrawText(
+        title,
+        (GetScreenWidth() - titleWidth) / 2,
+        GetScreenHeight() / 4,
+        titleSize,
+        RED
+    );
+
+    float bw = GetScreenWidth() / 3;
+    float bh = 60;
+    float bx = (GetScreenWidth() - bw) / 2;
+    float by = GetScreenHeight() / 2;
+
+    Rectangle resumeBtn = { bx, by, bw, bh };
+    Rectangle menuBtn   = { bx, by + bh + 20, bw, bh };
+
+    if (DrawMenuButton("RESUME", resumeBtn)) {
+        resumeClicked = true;
+    }
+
+    if (DrawMenuButton("MAIN MENU", menuBtn)) {
+        menuClicked = true;
+    }
+}
+
 void InitializeFromLevel(Level* level, View* view, Player* p, Hotbar* hb) {
     view->gridW = level->world.width;
     view->gridH = level->world.height;
@@ -215,6 +249,41 @@ const char* DeathText(DeathReason reason) {
 } 
 
 // ------------------------------------------------------------
+// ALL HAIL THE GREAT RESET 
+// ------------------------------------------------------------
+
+void ResetGameplayState(
+    Level& level,
+    View& view,
+    Player& player,
+    Hotbar& hotbar,
+    RenderTexture2D& target,
+    bool& isDead,
+    float& deathTimer,
+    DeathFlash& deathFlash
+) {
+    level.LoadFromFile(START_LEVEL);
+    InitializeFromLevel(&level, &view, &player, &hotbar);
+    PlayerSyncVisual(&player, view);
+
+    isDead = false;
+    deathTimer = 0.0f;
+    deathFlash.active = false;
+
+    SoundStopMovement();
+    SoundRestartMusic();
+
+    view.Recalculate();
+    PlayerSyncVisual(&player, view);
+
+    UnloadRenderTexture(target);
+    target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+
+    UINoiseOnResize();
+}
+
+// ------------------------------------------------------------
+
 
 
 static MaskType lastMask = MASK_NONE;
@@ -229,6 +298,7 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + UI_HEIGHT,
             "Mask Puzzle Game Galore Ultimate \"3D\" Remaster");
     SetTargetFPS(TARGET_FPS);
+    SetExitKey(KEY_NULL);
 
     LoadTileTextures();
     InitMaskAnimations();
@@ -282,6 +352,63 @@ int main() {
         float dt = GetFrameTime();
 
 
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            if (gameState == GameState::PLAYING) {
+                gameState = GameState::PAUSED;
+                SoundStopMovement();
+                EnableCursor();
+                ShowCursor();
+            }
+            else if (gameState == GameState::PAUSED) {
+                gameState = GameState::PLAYING;
+                DisableCursor();
+            }
+        }
+
+
+        if (gameState == GameState::PAUSED) {
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            BeginShaderMode(crtShader);
+            DrawTexturePro(
+                    target.texture,
+                    Rectangle{ 0, 0, (float)target.texture.width, -(float)target.texture.height },
+                    Rectangle{ 0, 0, (float)GetScreenWidth(), (float)GetScreenHeight() },
+                    Vector2{ 0, 0 },
+                    0.0f,
+                    WHITE
+                    );
+            EndShaderMode();
+
+            bool resume = false;
+            bool toMenu = false;
+
+            DrawPauseMenu(resume, toMenu);
+
+            EndDrawing();
+
+            if (resume) {
+                gameState = GameState::PLAYING;
+                DisableCursor();
+            }
+
+            if (toMenu) {
+                gameState = GameState::MENU;
+
+                isDead = false;
+                deathFlash.active = false;
+                deathTimer = 0.0f;
+
+                SoundStopMovement();
+                SoundRestartMusic();
+                InitMenuQuotes();
+            }
+
+            continue;
+        }
+
+
         if (gameState == GameState::MENU) {
             ShowCursor();
             BeginDrawing();
@@ -314,21 +441,10 @@ int main() {
             if (DrawMenuButton("START", startBtn)) {
                 gameState = GameState::PLAYING;
 
-                level.LoadFromFile(START_LEVEL);
-                InitializeFromLevel(&level, &view, &player, &hotbar);
-                PlayerSyncVisual(&player, view);
-
-
-                view.Recalculate();
-                PlayerSyncVisual(&player, view);
-
-                UnloadRenderTexture(target);
-                target = LoadRenderTexture(
-                    GetScreenWidth(),
-                    GetScreenHeight()
-                    );
-
-                UINoiseOnResize();
+                ResetGameplayState(
+                        level, view, player, hotbar, target,
+                        isDead, deathTimer, deathFlash
+                        );
             }
 
             if (DrawMenuButton("EXIT", exitBtn)) {
@@ -373,7 +489,7 @@ int main() {
 
                 isDead = false;
                 deathFlash.active = false;
-                SoundPlayMusic();
+                SoundRestartMusic();
             }
         }
 

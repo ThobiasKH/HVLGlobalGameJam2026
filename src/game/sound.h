@@ -17,3 +17,5 @@ void SoundOnMoveStart(MaskType mask);
 void SoundOnMoveStop(MaskType mask);
 void SoundOnPlate();
 void SoundOnMaskSwitch(MaskType mask);
+void SoundStopMovement();
+void SoundRestartMusic();

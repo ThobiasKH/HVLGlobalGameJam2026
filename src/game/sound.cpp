@@ -225,7 +225,7 @@ void SoundOnDeath() {
     StopSound(gWindMoveSound);
     stonePlaying = windPlaying = false;
 
-    PauseMusicStream(gMainTheme);
+    StopMusicStream(gMainTheme);
     PlaySound(gDeathSound);
 }
 
@@ -261,4 +261,16 @@ void SoundOnMaskSwitch(MaskType mask) {
     } else if (mask == MASK_WIND) {
         PlaySound(gWindEquipSound);
     }
+}
+
+void SoundStopMovement() {
+    StopSound(gStoneMoveSound);
+    StopSound(gWindMoveSound);
+    stonePlaying = false;
+    windPlaying  = false;
+}
+
+void SoundRestartMusic() {
+    StopMusicStream(gMainTheme);
+    PlayMusicStream(gMainTheme);
 }
