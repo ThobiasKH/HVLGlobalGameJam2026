@@ -78,6 +78,8 @@ const char* DeathText(DeathReason reason) {
 
 // ------------------------------------------------------------
 
+static MaskType lastMask = MASK_NONE;
+
 int main() {
     Level level;
     level.LoadFromFile(START_LEVEL);
@@ -180,6 +182,11 @@ int main() {
             HotbarUpdate(&hotbar, dt, &(player.maskUses), player.moving);
             player.mask = HotbarGetSelectedMask(&hotbar);
 
+            if (player.mask != lastMask) {
+                SoundOnMaskSwitch(player.mask);
+                lastMask = player.mask;
+            }
+
             if (!player.moving) {
                 if (IsKeyPressed(KEY_UP)    || IsKeyPressed(KEY_W)) PlayerTryMove(&player, 0, -1, level.world, view);
                 if (IsKeyPressed(KEY_DOWN)  || IsKeyPressed(KEY_S)) PlayerTryMove(&player, 0,  1, level.world, view);
@@ -230,6 +237,7 @@ int main() {
                 }
                 else if (t == TILE_PRESSUREPLATE && player.mask != MASK_WIND) {
                     level.world.ActivatePlate(player.gx, player.gy);
+                    SoundOnPlate();
                 }
             }
         }

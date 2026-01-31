@@ -23,6 +23,8 @@ void PlayerReset(Player* p, int x, int y, const View& view) {
 
 
 static void StartMove(Player* p, int nx, int ny, const View& view) {
+    SoundOnMoveStart(p->mask);
+
     p->gx = nx;
     p->gy = ny;
 
@@ -51,7 +53,6 @@ void PlayerTryMove(
     if (p->moving) return;
     if (p->mask == MASK_NONE) return;
 
-    SoundOnMoveStart(p->mask);
 
     int nx = p->gx + dx;
     int ny = p->gy + dy;
