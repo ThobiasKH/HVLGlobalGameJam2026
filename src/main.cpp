@@ -423,7 +423,7 @@ int main() {
 
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.6f));
 
-            const char* title = "You're mome gay";
+            const char* title = "FORMLESS";
             int titleSize = GetScreenWidth() / 10;
             int titleWidth = MeasureText(title, titleSize);
 

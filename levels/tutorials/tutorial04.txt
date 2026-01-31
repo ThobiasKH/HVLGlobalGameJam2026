@@ -25,7 +25,4 @@ SPAWN 0 0
 START_MASK MASK_STONE
 MASK_USES 100
 
-NEXT_LEVEL levels/tutorials/tutorial05.txt
 
-TEXT 2 2 "The DEATH attribute tells you how many
-TEXT 2 3 mask swaps you have left until you DIE!"

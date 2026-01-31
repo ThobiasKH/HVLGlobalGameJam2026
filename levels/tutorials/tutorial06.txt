@@ -31,4 +31,5 @@ MASK_USES 2
 
 NEXT_LEVEL levels/level01.txt
 
-TEXT 1 5 "With the WIND MASK, you are too light to use pressure plates."
+TEXT 1 5 "You are lighter now."
+TEXT 1 6 "Your imprint might not make an impression."

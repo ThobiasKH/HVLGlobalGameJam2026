@@ -26,6 +26,4 @@ MASK_USES 1
 
 NEXT_LEVEL levels/tutorials/tutorial03.txt
 
-TEXT 2 1 "Look out! There is fire ahead!"
-TEXT 2 2 "Thankfully, the STONE MASK negates fire damage!" 
-TEXT 2 3 "Once again, DO NOT press numbered keys!"
+TEXT 1 2 "The stone can endure the flames."

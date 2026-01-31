@@ -31,6 +31,4 @@ MASK_USES 1
 
 NEXT_LEVEL levels/tutorials/tutorial06.txt
 
-TEXT 1 5 "Sometimes, the way forward is blocked."
-TEXT 1 6 "You can step on pressure plates to open all closed doors...
-TEXT 1 7 "but this will also close any open doors."
+TEXT 1 5 "Choices bear weight."
