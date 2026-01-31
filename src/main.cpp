@@ -468,6 +468,7 @@ int main() {
 
     Hotbar hotbar;
     InitializeFromLevel(&level, &view, &player, &hotbar);
+    SaveRememberLevel(level.currentPath);
     PlayerSyncVisual(&player, view);
 
     RenderTexture2D target = LoadRenderTexture(
