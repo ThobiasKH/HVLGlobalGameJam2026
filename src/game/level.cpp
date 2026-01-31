@@ -24,6 +24,7 @@ bool Level::LoadFromFile(const std::string& path) {
     Section section = NONE;
 
 
+    currentPath = path;
     nextLevelPath.clear();
     texts.clear();
     while (std::getline(file, line)) {
@@ -48,7 +49,8 @@ bool Level::LoadFromFile(const std::string& path) {
             if (tileName == "TILE_GLASS")              legend[c] = TILE_GLASS;
             if (tileName == "TILE_PRESSUREPLATE")      legend[c] = TILE_PRESSUREPLATE;
             if (tileName == "TILE_PRESSUREPLATE_USED") legend[c] = TILE_PRESSUREPLATE_USED;
-            if (tileName == "TILE_DOOR")               legend[c] = TILE_DOOR;
+            if (tileName == "TILE_DOOR_CLOSED")        legend[c] = TILE_DOOR_CLOSED;
+            if (tileName == "TILE_DOOR_OPEN")          legend[c] = TILE_DOOR_OPEN;
         }
         else if (section == WORLD) {
             worldLines.push_back(line);
@@ -120,8 +122,6 @@ bool Level::LoadFromFile(const std::string& path) {
                 legend.count(c) ? legend[c] : TILE_EMPTY;
         }
     }
-
-    world.doorsOpen = false;
 
     return true;
 }

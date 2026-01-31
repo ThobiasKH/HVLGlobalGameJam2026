@@ -24,6 +24,7 @@ struct Level {
 
     std::vector<LevelText> texts;  // telltale aahh shi
 
+    std::string currentPath;
     std::string nextLevelPath;
 };
 

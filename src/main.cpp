@@ -103,6 +103,7 @@ int main() {
         if (isDead) {
             deathTimer += dt;
             if (deathTimer >= DEATH_SCREEN_DURATION) {
+                level.LoadFromFile(level.currentPath);
                 InitializeFromLevel(&level, &view, &player, &hotbar);
                 isDead = false;
             }
@@ -198,7 +199,6 @@ int main() {
         EndShaderMode();
 #endif
 
-        // --- Death overlay (drawn AFTER post-processing) ---
         if (isDead) {
             DrawRectangle(0, 0,
                           GetScreenWidth(),

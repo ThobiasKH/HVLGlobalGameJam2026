@@ -1,0 +1,31 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+END
+
+# World
+WORLD
+.........G
+wwwwwwwwww
+OOOOOOOOOO
+OOOOOOOOOO
+OOOOOOOOOO
+OOOOOOOOOO
+OOOOOOOOOO
+END
+
+# Player
+SPAWN 0 0
+
+# Masks
+START_MASK MASK_STONE
+MASK_USES 100
+
+NEXT_LEVEL levels/tutorials/tutorial05.txt
+
+TEXT 2 2 "The HEALTH attribute tells you how many
+TEXT 2 3 mask swaps you have left until you DIE!"

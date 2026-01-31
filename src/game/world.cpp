@@ -17,7 +17,17 @@ bool World::ActivatePlate(int x, int y) {
     }
     int idx = y * width + x;
     t = tiles[idx] = TILE_PRESSUREPLATE_USED;
-    doorsOpen = !doorsOpen;
+    for (int dy = 0; dy < height; dy++) {
+        for (int dx = 0; dx < width; dx++) {
+            int id = dy * width + dx; 
+            if (tiles[id] == TILE_DOOR_OPEN) {
+                tiles[id] = TILE_DOOR_CLOSED;
+            }
+            else if (tiles[id] == TILE_DOOR_CLOSED) {
+                tiles[id] = TILE_DOOR_OPEN;
+            }
+        }
+    }
     return true;
 }
 
@@ -33,8 +43,11 @@ bool World::IsWalkable(int x, int y, MaskType mask) const {
         case TILE_GLASS:
             return mask != MASK_STONE; // stone breaks glass later
         
-        case TILE_DOOR: 
-            return doorsOpen;
+        case TILE_DOOR_CLOSED: 
+            return false;
+
+        case TILE_DOOR_OPEN:
+            return true;
 
         default:
             return true;
@@ -257,38 +270,70 @@ void World::Draw(const View& view) const {
                 } break;
 
                 case TILE_PRESSUREPLATE: {
-                    Vector2 pos = view.GridToWorld(x, y);
+                    Rectangle src = {
+                        0, 0,
+                        (float)gTiles.pressureplate.width,
+                        (float)gTiles.pressureplate.height
+                    };
 
-                    DrawRectangle(
-                        (int)pos.x,
-                        (int)pos.y,
-                        view.tileSize,
-                        view.tileSize,
-                        GREEN
+                    DrawTexturePro(
+                        gTiles.pressureplate,
+                        src,
+                        dst,
+                        Vector2{0, 0},
+                        0.0f,
+                        WHITE
                     );
                 } break;
 
                 case TILE_PRESSUREPLATE_USED: {
-                    Vector2 pos = view.GridToWorld(x, y);
+                    Rectangle src = {
+                        0, 0,
+                        (float)gTiles.pressureplate_used.width,
+                        (float)gTiles.pressureplate_used.height
+                    };
 
-                    DrawRectangle(
-                        (int)pos.x,
-                        (int)pos.y,
-                        view.tileSize,
-                        view.tileSize,
-                        RED
+                    DrawTexturePro(
+                        gTiles.pressureplate_used,
+                        src,
+                        dst,
+                        Vector2{0, 0},
+                        0.0f,
+                        WHITE
                     );
                 } break;
 
-                case TILE_DOOR: {
-                    Vector2 pos = view.GridToWorld(x, y);
+                case TILE_DOOR_OPEN: {
+                    Rectangle src = {
+                        0, 0,
+                        (float)gTiles.door_open.width,
+                        (float)gTiles.door_open.height
+                    };
 
-                    DrawRectangle(
-                        (int)pos.x,
-                        (int)pos.y,
-                        view.tileSize,
-                        view.tileSize,
-                        doorsOpen ? WHITE : ORANGE
+                    DrawTexturePro(
+                        gTiles.door_open,
+                        src,
+                        dst,
+                        Vector2{0, 0},
+                        0.0f,
+                        WHITE
+                    );
+                } break;
+
+                case TILE_DOOR_CLOSED: {
+                    Rectangle src = {
+                        0, 0,
+                        (float)gTiles.door_closed.width,
+                        (float)gTiles.door_closed.height
+                    };
+
+                    DrawTexturePro(
+                        gTiles.door_closed,
+                        src,
+                        dst,
+                        Vector2{0, 0},
+                        0.0f,
+                        WHITE
                     );
                 } break;
 
@@ -498,6 +543,12 @@ void LoadTileTextures() {
     gTiles.empty_edge_bottomright = LoadTexture("assets/tiles/EMPTY_EDGE_BOTTOMRIGHT.png");
     gTiles.empty_edge_bottomleft = LoadTexture("assets/tiles/EMPTY_EDGE_BOTTOMLEFT.png");
 
+    gTiles.door_closed = LoadTexture("assets/tiles/DOOR_CLOSED.png"); 
+    gTiles.door_open = LoadTexture("assets/tiles/DOOR_OPEN.png"); 
+
+    gTiles.pressureplate_used = LoadTexture("assets/tiles/PRESSUREPLATE_USED.png"); 
+    gTiles.pressureplate = LoadTexture("assets/tiles/PRESSUREPLATE.png"); 
+
     SetTextureFilter(gTiles.wall, TEXTURE_FILTER_POINT);
     SetTextureFilter(gTiles.empty, TEXTURE_FILTER_POINT);
     SetTextureFilter(gTiles.goal, TEXTURE_FILTER_POINT);
@@ -512,6 +563,12 @@ void LoadTileTextures() {
     SetTextureFilter(gTiles.empty_edge_topright, TEXTURE_FILTER_POINT);
     SetTextureFilter(gTiles.empty_edge_bottomright, TEXTURE_FILTER_POINT);
     SetTextureFilter(gTiles.empty_edge_bottomleft, TEXTURE_FILTER_POINT);
+
+    SetTextureFilter(gTiles.door_closed, TEXTURE_FILTER_POINT);
+    SetTextureFilter(gTiles.door_open, TEXTURE_FILTER_POINT);
+
+    SetTextureFilter(gTiles.pressureplate_used, TEXTURE_FILTER_POINT);
+    SetTextureFilter(gTiles.pressureplate, TEXTURE_FILTER_POINT);
 }
 
 void UnloadTileTextures() {
@@ -529,4 +586,10 @@ void UnloadTileTextures() {
     UnloadTexture(gTiles.empty_edge_topright);
     UnloadTexture(gTiles.empty_edge_bottomright);
     UnloadTexture(gTiles.empty_edge_bottomleft);
+
+    UnloadTexture(gTiles.door_closed);
+    UnloadTexture(gTiles.door_open);
+
+    UnloadTexture(gTiles.pressureplate_used);
+    UnloadTexture(gTiles.pressureplate);
 }

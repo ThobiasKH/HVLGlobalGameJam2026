@@ -1,0 +1,34 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+P TILE_PRESSUREPLATE
+d TILE_DOOR_OPEN
+D TILE_DOOR_CLOSED
+END
+
+# World
+WORLD
+wwwwwwwwwwww
+w.........Pw
+wwwwwwwwwDww
+wwwwwwwwwGww
+OOOOOOOOOOOO
+OOOOOOOOOOOO
+OOOOOOOOOOOO
+OOOOOOOOOOOO
+END
+
+# Player
+SPAWN 1 1
+
+# Masks
+START_MASK MASK_WIND 
+MASK_USES 2
+
+NEXT_LEVEL levels/level01.txt
+
+TEXT 1 5 "With the WIND MASK, you are too light to use pressure plates."

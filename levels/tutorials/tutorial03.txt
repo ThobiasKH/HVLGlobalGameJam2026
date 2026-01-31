@@ -10,7 +10,7 @@ END
 # World
 WORLD
 GOOOOOOOO.
-OOOOOOOOOO
+wwwwwwwwww
 OOOOOOOOOO
 OOOOOOOOOO
 OOOOOOOOOO
@@ -24,7 +24,7 @@ SPAWN 9 0
 START_MASK MASK_STONE
 MASK_USES 2
 
-NEXT_LEVEL levels/level01.txt
+NEXT_LEVEL levels/tutorials/tutorial04.txt
 
 TEXT 2 2 "This time, you can safely press numbered keys... 
 TEXT 2 3 but only ONCE!"

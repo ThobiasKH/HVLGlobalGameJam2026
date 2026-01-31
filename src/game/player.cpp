@@ -162,42 +162,42 @@ void InitMaskAnimations() {
     gMaskAnims[MASK_WIND] = {
         // UP
         {
-            LoadTexture("assets/player/PLACE_HOLDER.png"),
+            LoadTexture("assets/player/WIND_UP.png"),
             32, 32,
             0,      // idle
             1,      // walk start
-            5,      // walk frames
-            3, 
+            3,      // walk frames
+            2, 
             12.0f
         },
         // DOWN
         {
-            LoadTexture("assets/player/PLACE_HOLDER.png"),
+            LoadTexture("assets/player/WIND_DOWN.png"),
             32, 32,
             0, 
             1, 
-            5, 
-            3,
+            3, 
+            2,
             12.0f
         },
         // LEFT
         {
-            LoadTexture("assets/player/PLACE_HOLDER.png"),
+            LoadTexture("assets/player/WIND_LEFT.png"),
             32, 32,
             0, 
             1, 
-            6, 
-            3,
+            3, 
+            2,
             12.0f
         },
         // RIGHT
         {
-            LoadTexture("assets/player/PLACE_HOLDER.png"),
+            LoadTexture("assets/player/WIND_RIGHT.png"),
             32, 32,
             0, 
             1, 
-            6, 
-            3,
+            3, 
+            2,
             12.0f
         }
     };

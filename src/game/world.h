@@ -14,7 +14,8 @@ enum Tile {
     TILE_GLASS, 
     TILE_PRESSUREPLATE,
     TILE_PRESSUREPLATE_USED,
-    TILE_DOOR
+    TILE_DOOR_CLOSED,
+    TILE_DOOR_OPEN
 };
 
 struct TileTextures {
@@ -30,6 +31,13 @@ struct TileTextures {
     Texture2D empty_edge_topright;
     Texture2D empty_edge_bottomleft;
     Texture2D empty_edge_bottomright;
+
+    Texture2D door_closed;
+    Texture2D door_open;
+
+    Texture2D pressureplate_used;
+    Texture2D pressureplate;
+    
 };
 
 void LoadTileTextures();
@@ -39,8 +47,6 @@ struct World {
     int width;
     int height;
     std::vector<Tile> tiles;
-
-    bool doorsOpen; 
 
     Tile Get(int x, int y) const;
     bool InBounds(int x, int y) const;

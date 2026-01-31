@@ -1,0 +1,36 @@
+# Legend
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+P TILE_PRESSUREPLATE
+d TILE_DOOR_OPEN
+D TILE_DOOR_CLOSED
+END
+
+# World
+WORLD
+wwwwwwwwwwww
+w..d.D....Gw
+wwwwPwwwwwww
+wwwwwwwwwwww
+OOOOOOOOOOOO
+OOOOOOOOOOOO
+OOOOOOOOOOOO
+OOOOOOOOOOOO
+END
+
+# Player
+SPAWN 1 1
+
+# Masks
+START_MASK MASK_STONE
+MASK_USES 1
+
+NEXT_LEVEL levels/tutorials/tutorial06.txt
+
+TEXT 1 5 "Sometimes, the way forward is blocked."
+TEXT 1 6 "You can step on pressure plates to open all closed doors...
+TEXT 1 7 "but this will also close any open doors."
