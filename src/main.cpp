@@ -275,27 +275,17 @@ bool GetHeldDirection(int& dx, int& dy) {
 void LoadLevelList() {
     gLevelList.clear();
 
-    // Load remembered set
-    auto remembered = LoadRememberedLevels();
-    std::unordered_set<std::string> known;
-    for (auto& p : remembered)
-        known.insert(p);
-
-    // Scan all levels on disk
     for (const auto& entry : std::filesystem::directory_iterator("levels")) {
         if (!entry.is_regular_file()) continue;
         if (entry.path().extension() != ".txt") continue;
 
         LevelEntry lvl;
-        lvl.path = entry.path().string();
+        lvl.path = NormalizePath(entry.path().string());
+        lvl.known = HasRememberedLevel(lvl.path);
 
-        if (known.contains(lvl.path)) {
-            lvl.name = entry.path().stem().string();
-            lvl.known = true;
-        } else {
-            lvl.name = "???";
-            lvl.known = false;
-        }
+        lvl.name = lvl.known
+            ? entry.path().stem().string()
+            : "???";
 
         gLevelList.push_back(lvl);
     }
@@ -327,6 +317,7 @@ void DrawLevelSelect(GameState& gameState,
     int titleSize = GetScreenWidth() / 12;
 
     float wheel = GetMouseWheelMove();
+    wheel = std::clamp(wheel, -1.0f, 1.0f);
     levelScroll -= wheel * 40.0f;
 
     float bw = GetScreenWidth() * 0.6f;
@@ -446,6 +437,10 @@ void ResetGameplayState(
 static MaskType lastMask = MASK_NONE;
 
 int main() {
+    std::filesystem::current_path(
+        std::filesystem::path(GetApplicationDirectory())
+    );
+
     Level level;
     level.LoadFromFile(START_LEVEL);
 
