@@ -67,23 +67,23 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
     int screenH = GetScreenHeight();
 
     int barY = screenH - UI_HEIGHT;
-    DrawRectangle(0, barY, screenW, UI_HEIGHT, DARKGRAY);
+    DrawRectangle(0, barY, screenW, UI_HEIGHT, BLACK);
 
-    int slotSize = UI_HEIGHT;
+    int slotSize = UI_HEIGHT * 0.8;
     int padding = 12;
     int totalW = HOTBAR_SLOTS * slotSize + (HOTBAR_SLOTS - 1) * padding;
     int startX = (screenW - totalW) / 2;
 
     int frame = (int)(hb->animTimer * MASK_FPS) % TOTAL_FRAMES;
 
-    DrawText(TextFormat("Swaps until DEATH: %d", maskUses), (float)(startX - 3 * slotSize), (float)(barY + (UI_HEIGHT - slotSize)/2), 
-            slotSize / 4, maskUses > 1 ? RAYWHITE : RED);
+    DrawText(TextFormat("DEATH: %d", maskUses), (float)(startX + 0.65 * slotSize), (float)(barY - UI_HEIGHT * 0.014f), 
+            slotSize / 6, maskUses > 1 ? RAYWHITE : RED);
 
     for (int i = 0; i < HOTBAR_SLOTS; i++) {
         int x = startX + i * (slotSize + padding);
         int y = barY + (UI_HEIGHT - slotSize) / 2;
 
-        DrawRectangle(x, y, slotSize, slotSize, GRAY);
+        DrawRectangle(x, y, slotSize, slotSize, BLACK);
 
         if (i == hb->selected) {
             DrawRectangleLinesEx(
@@ -123,7 +123,7 @@ void HotbarDraw(const Hotbar* hb, int maskUses) {
         );
 
         if (i != hb->selected) 
-            DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 3, WHITE);
+            DrawText(TextFormat("%d", i + 1), (float)x, (float)y, slotSize / 2, {255,255,255,128});
     }
 }
 
