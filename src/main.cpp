@@ -318,7 +318,17 @@ int main() {
                 InitializeFromLevel(&level, &view, &player, &hotbar);
                 PlayerSyncVisual(&player, view);
 
-                SoundPlayMusic();
+
+                view.Recalculate();
+                PlayerSyncVisual(&player, view);
+
+                UnloadRenderTexture(target);
+                target = LoadRenderTexture(
+                    GetScreenWidth(),
+                    GetScreenHeight()
+                    );
+
+                UINoiseOnResize();
             }
 
             if (DrawMenuButton("EXIT", exitBtn)) {
