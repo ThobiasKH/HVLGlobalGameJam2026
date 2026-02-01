@@ -13,14 +13,9 @@ END
 # World
 WORLD
 wwwwwwwwwww
-w.^O.w^.Gww
-wOPO^Odw..w
-wOwP.dPdw.w
-wOOOdOdw^dd
-wdOwO^^.OOP
-w^OO^....Pw
-wOOOOOOOO^w
-wOOOOOOOOOw
+w.OPDPD..Gw
+w^O^O^^OOOw
+wOO^P^OOOOw
 END
 
 # Player
@@ -28,8 +23,7 @@ SPAWN 1 1
 
 # Masks
 START_MASK MASK_WIND
-MASK_USES 8
+MASK_USES 4
 
-NEXT_LEVEL levels/level04.txt
+NEXT_LEVEL levels/level05.txt
 
-TEXT 2 8 "You agreed, though you may have forgotten."

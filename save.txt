@@ -1,2 +1,11 @@
+levels/custom01.txt
+levels/level01.txt
+levels/level02.txt
+levels/level03.txt
+levels/level04.txt
+levels/level05.txt
 levels/tutorial01.txt
 levels/tutorial02.txt
+levels/tutorial03.txt
+levels/tutorial04.txt
+levels/tutorial05.txt

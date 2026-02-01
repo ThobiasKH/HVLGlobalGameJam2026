@@ -43,3 +43,5 @@ MASK_USES 3
 # Denotes which level will load when player 
 # steps on a GOAL_TILE
 NEXT_LEVEL levels/level02.txt
+
+# If you get a crash you did something wrong probably (most often WORLD having uneven col/row(s)). 
