@@ -1,0 +1,45 @@
+# Welcome the the "level editor". 
+# Any line starting with '#' will be ignored. 
+
+# Legend
+# In this section we define which characters correspond to which tiles.
+LEGEND
+. TILE_EMPTY
+w TILE_WALL
+^ TILE_FLAME
+O TILE_PIT
+G TILE_GOAL
+P TILE_PRESSUREPLATE
+p TILE_PRESSUREPLATE_USED
+D TILE_DOOR_CLOSED
+d TILE_DOOR_OPEN
+END
+
+# World
+# In this section we draw the world, it is important that the level is rectangle shaped,
+# i.e. n x m. 
+WORLD
+wwwwwwwwww
+w........w
+w........w
+w........w
+w........w
+wwwwwwwwww
+END
+
+# Player
+# SPAWN X Y (x,y non-negative integers) 
+# tells where the player should spawn
+SPAWN 1 1
+
+# Masks
+# START_MASK (either MASK_WIND or MASK_STONE)
+START_MASK MASK_WIND
+# MASK_USES (positive integer) denotes how much 
+# "coherence the player has". E.g. if MASK_USES 1, then 
+# the player can't swap masks any times without dying
+MASK_USES 3
+
+# Denotes which level will load when player 
+# steps on a GOAL_TILE
+NEXT_LEVEL levels/level02.txt
