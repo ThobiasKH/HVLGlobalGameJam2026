@@ -878,16 +878,3 @@ int main() {
     SoundShutdown();
     return 0;
 }
-
-// Compile for windows 
-/*
-x86_64-w64-mingw32-g++ \
-  -std=c++20 \
-  src/main.cpp src/game/*.cpp \
-  -I src \
-  -I /home/thobias/win-libs/raylib-5.5_win64_mingw-w64/include \
-  -L /home/thobias/win-libs/raylib-5.5_win64_mingw-w64/lib \
-  -o game-win.exe \
-  -lraylib -lopengl32 -lgdi32 -lwinmm \
-  -static -static-libgcc -static-libstdc++
- */

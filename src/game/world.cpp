@@ -39,9 +39,6 @@ bool World::IsWalkable(int x, int y, MaskType mask) const {
     switch (t) {
         case TILE_WALL:
             return false;
-
-        case TILE_GLASS:
-            return mask != MASK_STONE; // stone breaks glass later
         
         case TILE_DOOR_CLOSED: 
             return false;
